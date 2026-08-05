@@ -14,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityResurrectEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -98,7 +99,6 @@ public class CustomListener  implements Listener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamageSource().getCausingEntity() instanceof Player attacker)) return;
-
         List<ItemStack> attackerItems = getCustoms(attacker);
         for (ItemStack item : attackerItems) {
             String pdc = getPDC(item, Keys.customKey);
@@ -125,21 +125,23 @@ public class CustomListener  implements Listener {
     @EventHandler
     public void onShieldDisable(PlayerShieldDisableEvent event) {
         Player player = event.getPlayer();
-        List<ItemStack> items = getArmorCustoms(player);
-        for (ItemStack item : items) {
-            String pdc = getPDC(item, Keys.customKey);
-            if (!customs.containsKey(pdc)) continue;
-            CustomEnchant custom = customs.get(pdc);
-            if (custom != null) custom.useAbility(player, event);
+        ItemStack shield;
+        if (player.getInventory().getItemInMainHand().getType() == Material.SHIELD) {
+            shield = player.getInventory().getItemInMainHand();
+        } else {
+            shield = player.getInventory().getItemInOffHand();
+        }
+        String pdc = getPDC(shield, Keys.customKey);
+
+        if (customs.containsKey(pdc)) {
+            customs.get(pdc).useAbility(player, event);
         }
 
         if (!(event.getDamager() instanceof Player attacker)) return;
-        List<ItemStack> attackerItems = getCustoms(attacker);
-        for (ItemStack item : attackerItems) {
-            String pdc = getPDC(item, Keys.customKey);
-            if (!customs.containsKey(pdc)) continue;
-            CustomEnchant custom = customs.get(pdc);
-            if (custom != null) custom.useAbility(attacker, event);
+        ItemStack item = attacker.getInventory().getItemInMainHand();
+        String pdc2 = getPDC(item, Keys.customKey);
+        if (customs.containsKey(pdc2)) {
+            customs.get(pdc2).useAbility(attacker, event);
         }
     }
 
@@ -166,6 +168,12 @@ public class CustomListener  implements Listener {
             CustomEnchant custom = customs.get(pdc);
             if (custom != null) custom.useAbility(attacker, event);
         }
+    }
+
+    @EventHandler
+    void onItemDamage (PlayerItemDamageEvent event) {
+        if (!getPDC(event.getItem(), Keys.customKey).equalsIgnoreCase("reinforce")) return;
+        customs.get("reinforce").useAbility(event.getPlayer(), event);
     }
 
     private List<ItemStack> getArmorCustoms(Player player) {

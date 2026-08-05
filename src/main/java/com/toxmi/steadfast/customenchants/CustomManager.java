@@ -14,7 +14,7 @@ public class CustomManager {
     private final Map<String, Object[]> customs = new HashMap<>();
     private final Steadfast plugin = Steadfast.get();
 
-    private final Map<Cooldown, Double> cooldowns = new HashMap<>();
+    private final Map<Cooldown, Long> cooldowns = new HashMap<>();
     private static CustomManager instance;
     private File file;
     private FileConfiguration config;
@@ -60,11 +60,12 @@ public class CustomManager {
     public record Cooldown(UUID player, String custom) {}
 
     public boolean isOnCooldown(String custom, UUID player) {
-        return cooldowns.containsKey(new Cooldown(player, custom));
+        Long time = cooldowns.getOrDefault(new Cooldown(player, custom),System.currentTimeMillis());
+        return time + getCooldown(custom) * 1000 > System.currentTimeMillis();
     }
 
     public void addCooldown(String custom, UUID player) {
-        cooldowns.put(new Cooldown(player, custom), (Double) customs.get(custom)[0]);
+        cooldowns.put(new Cooldown(player, custom), System.currentTimeMillis());
     }
 
     public void removeCooldown(String custom, UUID player) {

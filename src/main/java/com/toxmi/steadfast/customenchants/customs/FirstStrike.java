@@ -16,16 +16,20 @@ public class FirstStrike extends CustomEnchant {
 
     @Override
     public void useAbility(Player player, Event event) {
-        // TO DO
         if (!(event instanceof EntityDamageEvent e)) return;
         if (cm.isOnCooldown("firststrike", player.getUniqueId())) return;
         Entity victim = e.getEntity();
+
+        // Check if the victim has been struck by another first strike in the last X seconds
         if (cooldown.containsKey(victim.getUniqueId())) {
             long time = cooldown.get(victim.getUniqueId());
             if (time + cm.getVar2("firststrike") * 1000 < System.currentTimeMillis()) return;
-
         }
+
+        // Increase damage by X
         e.setDamage(e.getDamage() * cm.getVar1("firststrike"));
+
+        // Add cooldowns to victim and the user
         cooldown.put(victim.getUniqueId(), System.currentTimeMillis());
         cm.addCooldown("firststrike", player.getUniqueId());
     }
