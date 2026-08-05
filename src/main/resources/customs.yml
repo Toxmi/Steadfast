@@ -1,0 +1,379 @@
+customs:
+  adrenaline:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 300.0 # Strength duration
+    variable2: 300.0 # Speed duration
+    variable3: 300.0 # Regeneration duration
+  artemis:
+    material: BOW
+    enabled: true
+    cooldown: 10
+    variable1: 50.0 # Speed duration
+    variable2: null
+    variable3: null
+  ascent:
+    material: MACE
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  athletic:
+    material: DIAMOND_LEGGINGS
+    enabled: false
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  autoloadingholster:
+    material: CROSSBOW
+    enabled: true
+    cooldown: 5
+    variable1: null
+    variable2: null
+    variable3: null
+  berserk:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 120
+    variable1: 10.0 # Strength 3 duration
+    variable2: 60.0 # Strength 2 duration
+    variable3: null
+  bolt:
+    material: CROSSBOW
+    enabled: true
+    cooldown: 30
+    variable1: 15.0 # Damage
+    variable2: null
+    variable3: null
+  bulwark:
+    material: SHIELD
+    enabled: true
+    cooldown: 30
+    variable1: 5.0 # Resistance duration
+    variable2: null
+    variable3: null
+  clapback:
+    material: DIAMOND_CHESTPLATE
+    enabled: true
+    cooldown: 46
+    variable1: 5.0 # Slowness duration
+    variable2: null
+    variable3: null
+  cleaving:
+    material: DIAMOND_AXE
+    enabled: true
+    cooldown: 0
+    variable1: 10.0 # Damage
+    variable2: null
+    variable3: null
+  compound:
+    material: BOW
+    enabled: true
+    cooldown: 0
+    variable1: 4.0 # True damage
+    variable2: null
+    variable3: null
+  concuss:
+    material: MACE
+    enabled: true
+    cooldown: 60
+    variable1: 15.0 # Duration
+    variable2: 5.0 # Delay
+    variable3: null
+  counter:
+    material: SHIELD
+    enabled: true
+    cooldown: 0
+    variable1: 0.3 # Chance to disable enemys shield
+    variable2: null
+    variable3: null
+  critical:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 0.05 # Chance to deal double damage
+    variable2: null
+    variable3: null
+  deflector:
+    material: DIAMOND_CHESTPLATE
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  delusional: # Delusional Strength
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  demolotionist:
+    material: DIAMOND_LEGGINGS
+    enabled: true
+    cooldown: 0
+    variable1: 0.75 # Damage reduction to explosions
+    variable2: null
+    variable3: null
+  endurance:
+    material: DIAMOND_LEGGINGS
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  extinguish:
+    material: DIAMOND_LEGGINGS
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  firefly:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 30
+    variable1: 5.0 # Number of hits
+    variable2: 3.0 # Explosion strength
+    variable3: null
+  firststrike:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 15
+    variable1: 1.75 # Damage increase
+    variable2: 5.0 # Delay between first strikes
+    variable3: null
+  fling:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 0.15 # Chance
+    variable2: 2.0 # Velocity
+    variable3: null
+  frenzy:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  frost:
+    material: CROSSBOW
+    enabled: true
+    cooldown: 10
+    variable1: 20.0 # Mining fatigue duration
+    variable2: null
+    variable3: null
+  hardhat:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 0
+    variable1: 0.75 # Damage reduction
+    variable2: null
+    variable3: null
+  harmonic:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 0
+    variable1: 0.20 # Chance to share effects with teammates
+    variable2: null
+    variable3: null
+  headless:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  heavenly:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 300
+    variable1: 0.3 # Durability damage
+    variable2: null
+    variable3: null
+  homing:
+    material: BOW
+    enabled: true
+    cooldown: 0
+    variable1: 0.6 # Chance
+    variable2: null
+    variable3: null
+  hook:
+    material: FISHING_ROD
+    enabled: true
+    cooldown: 15
+    variable1: 15.0 # Slowness duration
+    variable2: null
+    variable3: null
+  immunity:
+    material: DIAMOND_BOOTS
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  impale:
+    material: TRIDENT
+    enabled: true
+    cooldown: 2
+    variable1: 4.0 # Durability damage multiplier
+    variable2: null
+    variable3: null
+  infernal:
+    material: CROSSBOW
+    enabled: true
+    cooldown: 45
+    variable1: null
+    variable2: null
+    variable3: null
+  knockout:
+    material: SHIELD
+    enabled: true
+    cooldown: 0
+    variable1: 10.0 # Duration that the enemys shield is disabled for
+    variable2: null
+    variable3: null
+  lifebloom:
+    material: DIAMOND_LEGGINGS
+    enabled: true
+    cooldown: 0
+    variable1: 9.0 # Radius
+    variable2: null
+    variable3: null
+  lifesteal:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 0.15 # Chance
+    variable2: 3.0 # Regeneration duration
+    variable3: null
+  lowground:
+    material: DIAMOND_AXE
+    enabled: true
+    cooldown: 10
+    variable1: 1.35 # Damage multiplier
+    variable2: null
+    variable3: null
+  ninja:
+    material: DIAMOND_BOOTS
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  quarry:
+    material: DIAMOND_PICKAXE
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  rally:
+    material: SHIELD
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  reaper:
+    material: DIAMOND_AXE
+    enabled: true
+    cooldown: 10
+    variable1: 0.6 # Chance
+    variable2: 10.0 # Duration that is removed from enemys potion effects
+    variable3: null
+  reinforce:
+    material: DIAMOND_CHESTPLATE
+    enabled: true
+    cooldown: 0
+    variable1: 0.5 # Durability damage multiplier
+    variable2: null
+    variable3: null
+  sandpaper:
+    material: DIAMOND_AXE
+    enabled: true
+    cooldown: 2
+    variable1: 2.0 # Durability damage multiplier
+    variable2: null
+    variable3: null
+  shock:
+    material: DIAMOND_CHESTPLATE
+    enabled: true
+    cooldown: 30
+    variable1: null
+    variable2: null
+    variable3: null
+  slash:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 1.5 # Radius
+    variable2: null
+    variable3: null
+  sustenance:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 10
+    variable1: 5.0 # Damageless duration
+    variable2: 1.0 # Saturation gain interval
+    variable3: null
+  tank:
+    material: DIAMOND_CHESTPLATE
+    enabled: true
+    cooldown: 0
+    variable1: 5.0 # Resistance duration
+    variable2: null
+    variable3: null
+  trickster:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 0.01 # Chance to shuffle enemys hotbar
+    variable2: null
+    variable3: null
+  unbrokenchain:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: 0.05 # Multiplier each hit
+    variable2: 0.5 # Max multiplier
+    variable3: null
+  underdog:
+    material: DIAMOND_SWORD
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null
+  unstable:
+    material: DIAMOND_HELMET
+    enabled: true
+    cooldown: 40
+    variable1: null
+    variable2: null
+    variable3: null
+  volley:
+    material: BOW
+    enabled: true
+    cooldown: 0
+    variable1: 0.2 # Chance
+    variable2: null
+    variable3: null
+  vortex:
+    material: TRIDENT
+    enabled: true
+    cooldown: 10
+    variable1: 50
+    variable2: null
+    variable3: null
+  weightless:
+    material: DIAMOND_BOOTS
+    enabled: true
+    cooldown: 0
+    variable1: null
+    variable2: null
+    variable3: null

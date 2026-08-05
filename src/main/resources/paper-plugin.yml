@@ -1,0 +1,9 @@
+name: Steadfast
+description: $description
+version: '${version}'
+
+main: com.toxmi.steadfast.Steadfast
+api-version: '1.21.11'
+load: STARTUP
+
+authors: [ Toxmi ]
