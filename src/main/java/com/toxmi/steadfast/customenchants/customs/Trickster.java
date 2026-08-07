@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,19 +14,33 @@ import java.util.List;
 
 public class Trickster extends CustomEnchant {
     @Override
-    public void useAbility(Player player, Event event) {
+    public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
-        if (Math.random() > cm.getVar1("trickster")) return;
-        List<ItemStack> hotbar = new ArrayList<>(9);
+        if (!(e.getEntity() instanceof Player victim)) return;
+        if (Math.random() < cm.getVar1("trickster")) return;
+
+        // Get all items in the victims hotbar
+        List<ItemStack> hotbar = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
-            hotbar.set(i, player.getInventory().getItem(i));
+
+            hotbar.add( victim.getInventory().getItem(i));
         }
+
+        // Shuffle the hotbar
         Collections.shuffle(hotbar);
+
+        // Set the hotbar to the randomized version
+        int slot = 0;
         for (ItemStack item : hotbar) {
-            if (item == null) player.getInventory().setItem(player.getInventory().getHeldItemSlot(), new ItemStack(Material.AIR));
-            player.getInventory().setItem(player.getInventory().getHeldItemSlot(), item);
+            if (item == null){
+                victim.getInventory().setItem(slot, new ItemStack(Material.AIR));
+                slot++;
+                continue;
+            }
+            victim.getInventory().setItem(slot, item);
+            slot++;
         }
-        player.updateInventory();
+        victim.updateInventory();
 
 
     }

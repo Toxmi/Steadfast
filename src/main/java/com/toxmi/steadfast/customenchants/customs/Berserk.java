@@ -5,12 +5,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.Nullable;
 
 import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Berserk extends CustomEnchant {
     @Override
-    public void useAbility(Player player, Event event) {
+    public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent)) return;
         if (cm.isOnCooldown("berserk", player.getUniqueId())) return;
         // Add Strength 3 to player for X duration

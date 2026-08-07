@@ -4,8 +4,8 @@ import com.toxmi.steadfast.customenchants.CustomEnchant;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +15,11 @@ public class FirstStrike extends CustomEnchant {
     private final Map<UUID, Long> cooldown = new HashMap<>();
 
     @Override
-    public void useAbility(Player player, Event event) {
+    public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
         if (cm.isOnCooldown("firststrike", player.getUniqueId())) return;
         Entity victim = e.getEntity();
-
+        player.sendMessage("First Strike!");
         // Check if the victim has been struck by another first strike in the last X seconds
         if (cooldown.containsKey(victim.getUniqueId())) {
             long time = cooldown.get(victim.getUniqueId());

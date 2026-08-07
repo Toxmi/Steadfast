@@ -4,6 +4,7 @@ import com.toxmi.steadfast.Steadfast;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class CustomManager {
     public record Cooldown(UUID player, String custom) {}
 
     public boolean isOnCooldown(String custom, UUID player) {
-        Long time = cooldowns.getOrDefault(new Cooldown(player, custom),System.currentTimeMillis());
+        Long time = cooldowns.getOrDefault(new Cooldown(player, custom),0L);
         return time + getCooldown(custom) * 1000 > System.currentTimeMillis();
     }
 
@@ -92,6 +93,7 @@ public class CustomManager {
     public Material getMaterial(String custom) {
         return (Material) customs.get(custom)[1];
     }
+
 
 
 

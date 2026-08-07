@@ -6,10 +6,11 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.jetbrains.annotations.Nullable;
 
 public class Slash extends CustomEnchant {
     @Override
-    public void useAbility(Player player, Event event) {
+    public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         Entity victim = e.getEntity();
         for (LivingEntity le : victim.getLocation().getNearbyLivingEntities(cm.getVar1("slash"))) {

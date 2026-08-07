@@ -82,6 +82,7 @@ public class CustomListener  implements Listener {
     public CustomListener(Steadfast plugin) {
         this.plugin = plugin;
         registerCustoms();
+        tick();
     }
 
     private void registerCustoms() {
@@ -99,11 +100,10 @@ public class CustomListener  implements Listener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamageSource().getCausingEntity() instanceof Player attacker)) return;
-        List<ItemStack> attackerItems = getCustoms(attacker);
-        for (ItemStack item : attackerItems) {
-            String pdc = getPDC(item, Keys.customKey);
-            if (!customs.containsKey(pdc)) continue;
-            customs.get(pdc).useAbility(attacker, event);
+        List<String> attackerItems = getCustoms(attacker);
+        for (String item : attackerItems) {
+            if (!customs.containsKey(item)) continue;
+            customs.get(item).useAbility(attacker, event);
 
         }
     }
@@ -111,11 +111,10 @@ public class CustomListener  implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player p)) return;
-        List<ItemStack> items = getArmorCustoms(p);
-        for (ItemStack item : items) {
-            String pdc = getPDC(item, Keys.customKey);
-            if (!customs.containsKey(pdc)) continue;
-            customs.get(pdc).useAbility(p, event);
+        List<String> items = getArmorCustoms(p);
+        for (String item : items) {
+            if (!customs.containsKey(item)) continue;
+            customs.get(item).useAbility(p, event);
 
         }
 
@@ -176,25 +175,25 @@ public class CustomListener  implements Listener {
         customs.get("reinforce").useAbility(event.getPlayer(), event);
     }
 
-    private List<ItemStack> getArmorCustoms(Player player) {
-        List<ItemStack> customs  = new ArrayList<>();
+    private List<String> getArmorCustoms(Player player) {
+        List<String> customs  = new ArrayList<>();
         for (ItemStack item : player.getInventory().getArmorContents()) {
             if (item == null) continue;
             String pdc = getPDC(item, Keys.customKey);
-            if (!pdc.isEmpty()) customs.add(item);
+            if (!pdc.isEmpty()) customs.add(pdc);
         }
         return customs;
     }
 
-    private List<ItemStack> getCustoms(Player player) {
-        List<ItemStack> customs = new ArrayList<>(getArmorCustoms(player));
+    private List<String> getCustoms(Player player) {
+        List<String> customs = new ArrayList<>(getArmorCustoms(player));
         if (player.getInventory().getItemInMainHand().getType() != Material.AIR) {
             String pdc = getPDC(player.getInventory().getItemInMainHand(), Keys.customKey);
-            if (!pdc.isEmpty()) customs.add(player.getInventory().getItemInMainHand());
+            if (!pdc.isEmpty()) customs.add(pdc);
         }
         if (player.getInventory().getItemInOffHand().getType() != Material.AIR) {
             String pdc = getPDC(player.getInventory().getItemInOffHand(), Keys.customKey);
-            if (!pdc.isEmpty()) customs.add(player.getInventory().getItemInOffHand());
+            if (!pdc.isEmpty()) customs.add(pdc);
         }
         return customs;
     }
@@ -204,13 +203,22 @@ public class CustomListener  implements Listener {
         return item.getPersistentDataContainer().get(key, PersistentDataType.STRING);
     }
 
-    private void callEvent(Event event) {
-        plugin.getServer().getPluginManager().callEvent(event);
-    }
 
     private void removeChain(Player victim) {
         UnbrokenChain chain = (UnbrokenChain) customs.get("unbrokenchain");
         chain.removeChain(victim);
+    }
+
+    public void tick() {
+        plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, task -> {
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
+                List<String> items = getCustoms(player);
+                for (String item : items) {
+                    if (!customs.containsKey(item)) continue;
+                    customs.get(item).useAbility(player, null);
+                }
+            }
+        },1,20);
     }
 
     public List<String> getCustomsList() {

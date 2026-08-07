@@ -4,6 +4,7 @@ import com.toxmi.steadfast.customenchants.CustomEnchant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,13 +16,17 @@ public class UnbrokenChain extends CustomEnchant {
     }
 
     @Override
-    public void useAbility(Player player, Event event) {
+    public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
         if (!(e.getEntity() instanceof Player victim)) return;
+        // Check if the attacker has U-Chain stacks on the victim and if not set stacks to 0
         ChainStack stack = new ChainStack(player, victim);
         int stacks = chainStacks.getOrDefault(stack, 0);
+
+        // Add 1 to the stacks of the attacker
         chainStacks.put(stack, stacks + 1);
         if (stacks >= 2) {
+            // Increase damage by 1 + x * stacks
             double multiplier = Math.min(1 + stacks * 0.05, 1.5);
             e.setDamage(e.getDamage() * multiplier);
         }
