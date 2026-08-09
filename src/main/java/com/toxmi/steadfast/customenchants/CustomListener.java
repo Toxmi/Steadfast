@@ -145,7 +145,7 @@ public class CustomListener  implements Listener {
     }
 
     @EventHandler
-    void onResurrect(EntityResurrectEvent event) {
+    void onResurrect(EntityDeathEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (event.isCancelled()) return;
         if (player.getInventory().getHelmet() == null) return;

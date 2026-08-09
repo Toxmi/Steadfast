@@ -32,10 +32,12 @@ public class Reaper extends CustomEnchant {
         victim.getActivePotionEffects().forEach(effect  -> {
             // Check if the potion effect is a positive effect
             if (positiveEffects.contains(effect.getType())) {
-                if (effect.getDuration() > 10) {
+                if (effect.getDuration() > 10 * 20) {
                     // Remove the potion effect and add it back with 10 seconds shorter duration
                     victim.removePotionEffect(effect.getType());
-                    addPotionEffect(effect.getType(), victim, effect.getDuration() - 10, effect.getAmplifier());
+                    addPotionEffect(effect.getType(), victim, effect.getDuration() / 10- 10, effect.getAmplifier());
+                } else {
+                    victim.removePotionEffect(effect.getType());
                 }
             }
         });

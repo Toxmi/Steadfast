@@ -14,6 +14,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Locale;
+
 public class GiveCustomCommand extends BaseCommand {
 
 
@@ -27,7 +29,9 @@ public class GiveCustomCommand extends BaseCommand {
                 })
                 .then(Commands.argument("custom", StringArgumentType.word())
                         .suggests((ctx, builder) -> {
-                            plugin.getCustomListener().getCustomsList().stream().filter(s -> s.toLowerCase().startsWith(StringArgumentType.getString(ctx, "custom").toLowerCase())).forEach(builder::suggest);
+                            plugin.getCustomListener().getCustomsList().stream()
+                                    .filter(s -> s.toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                    .forEach(builder::suggest);
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
