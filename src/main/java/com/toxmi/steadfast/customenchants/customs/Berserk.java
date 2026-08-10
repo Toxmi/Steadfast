@@ -20,6 +20,6 @@ public class Berserk extends CustomEnchant {
         // Add Strength 2 to player for X duration after previous strength runs out
         plugin.getServer().getRegionScheduler().runDelayed(plugin, player.getLocation(), task -> {
             addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar2("berserk"), 2);
-        },(long) cm.getVar1("berserk") * 20);
+        }, (long) cm.getVar1("berserk") * 20);
     }
 }

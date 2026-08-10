@@ -25,6 +25,7 @@ public class Reaper extends CustomEnchant {
     @Override
     public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
+        if (!e.isCritical()) return;
         if (!(e.getEntity() instanceof Player victim)) return;
         if (Math.random() > cm.getVar1("reaper")) return;
 

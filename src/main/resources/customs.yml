@@ -9,7 +9,7 @@ customs:
   artemis:
     material: BOW
     enabled: true
-    cooldown: 10
+    cooldown: 0
     variable1: 50.0 # Speed duration
     variable2: null
     variable3: null
@@ -21,7 +21,7 @@ customs:
     variable2: null
     variable3: null
   athletic:
-    material: DIAMOND_LEGGINGS
+    material: DIAMOND_BOOTS
     enabled: false
     cooldown: 0
     variable1: null
@@ -42,7 +42,7 @@ customs:
     variable2: 60.0 # Strength 2 duration
     variable3: null
   bolt:
-    material: CROSSBOW
+    material: TRIDENT
     enabled: true
     cooldown: 30
     variable1: 15.0 # Damage
@@ -58,7 +58,7 @@ customs:
   clapback:
     material: DIAMOND_CHESTPLATE
     enabled: true
-    cooldown: 46
+    cooldown: 45
     variable1: 5.0 # Slowness duration
     variable2: null
     variable3: null
@@ -111,8 +111,8 @@ customs:
     variable1: null
     variable2: null
     variable3: null
-  demolotionist:
-    material: DIAMOND_LEGGINGS
+  demolitionist:
+    material: DIAMOND_CHESTPLATE
     enabled: true
     cooldown: 0
     variable1: 0.75 # Damage reduction to explosions
@@ -231,10 +231,10 @@ customs:
     variable2: null
     variable3: null
   knockout:
-    material: SHIELD
+    material: DIAMOND_AXE
     enabled: true
     cooldown: 0
-    variable1: 10.0 # Duration that the enemys shield is disabled for
+    variable1: 10.0 # Duration that the enemy's shield is disabled for
     variable2: null
     variable3: null
   lifebloom:
@@ -366,8 +366,8 @@ customs:
   vortex:
     material: TRIDENT
     enabled: true
-    cooldown: 10
-    variable1: 50
+    cooldown: 15
+    variable1: 7 # Radius
     variable2: null
     variable3: null
   weightless:

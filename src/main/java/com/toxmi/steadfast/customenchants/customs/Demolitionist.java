@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
-public class Demolotionist extends CustomEnchant {
+public class Demolitionist extends CustomEnchant {
     @Override
     public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;

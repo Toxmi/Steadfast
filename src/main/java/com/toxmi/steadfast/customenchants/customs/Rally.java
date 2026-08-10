@@ -5,7 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
-import static com.toxmi.steadfast.utils.Potion.*;
+
+import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 
 public class Rally extends CustomEnchant {

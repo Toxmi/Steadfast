@@ -1,19 +1,20 @@
 package com.toxmi.steadfast.customenchants;
 
+import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
 import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.customenchants.customs.UnbrokenChain;
 import com.toxmi.steadfast.utils.Keys;
 import io.papermc.paper.event.player.PlayerShieldDisableEvent;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityResurrectEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -40,7 +41,8 @@ public class CustomListener  implements Listener {
             "Counter",
             "Critical",
             "Deflector",
-            "Demolotionist",
+            "Delusional",
+            "Demolitionist",
             "Endurance",
             "Extinguish",
             "Firefly",
@@ -115,9 +117,7 @@ public class CustomListener  implements Listener {
         for (String item : items) {
             if (!customs.containsKey(item)) continue;
             customs.get(item).useAbility(p, event);
-
         }
-
         removeChain(p);
     }
 
@@ -175,6 +175,41 @@ public class CustomListener  implements Listener {
         customs.get("reinforce").useAbility(event.getPlayer(), event);
     }
 
+    @EventHandler
+    void onBlockBreak (BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (customs.containsKey(getPDC(item, Keys.customKey))) {
+            customs.get(getPDC(item, Keys.customKey)).useAbility(player, event);
+        }
+    }
+
+    @EventHandler
+    void onProjectileShoot (PlayerLaunchProjectileEvent event) {
+        String pdc = getPDC(event.getItemStack(), Keys.customKey);
+        setPDC(event.getProjectile(), pdc, Keys.customKey);
+        if (customs.containsKey(pdc)) {
+            customs.get(pdc).useAbility(event.getPlayer(), event);
+        }
+    }
+
+    @EventHandler
+    void onProjectileHit (ProjectileHitEvent event) {
+        String pdc = getPDC(event.getEntity(), Keys.customKey);
+        if (customs.containsKey(pdc)) {
+            customs.get(pdc).useAbility(null, event);
+        }
+    }
+
+    @EventHandler
+    void onShoot(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        String pdc = getPDC(event.getBow(), Keys.customKey);
+        if (customs.containsKey(pdc)) {
+            customs.get(pdc).useAbility(player, event);
+        }
+    }
+
     private List<String> getArmorCustoms(Player player) {
         List<String> customs  = new ArrayList<>();
         for (ItemStack item : player.getInventory().getArmorContents()) {
@@ -183,6 +218,14 @@ public class CustomListener  implements Listener {
             if (!pdc.isEmpty()) customs.add(pdc);
         }
         return customs;
+    }
+
+    private void setPDC(Projectile item, String value, NamespacedKey key) {
+        item.getPersistentDataContainer().set(key, PersistentDataType.STRING, value);
+    }
+
+    private void setPDC(ItemStack item, String value, NamespacedKey key) {
+        item.getItemMeta().getPersistentDataContainer().set(key, PersistentDataType.STRING, value);
     }
 
     private List<String> getCustoms(Player player) {
@@ -198,9 +241,14 @@ public class CustomListener  implements Listener {
         return customs;
     }
 
-    public String getPDC(ItemStack item, NamespacedKey key) {
+    private String getPDC(ItemStack item, NamespacedKey key) {
         if (item == null || !item.hasItemMeta() || !item.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.STRING)) return "";
         return item.getPersistentDataContainer().get(key, PersistentDataType.STRING);
+    }
+
+    public String getPDC(Entity entity, NamespacedKey key) {
+        if (entity == null|| !entity.getPersistentDataContainer().has(key, PersistentDataType.STRING)) return "";
+        return entity.getPersistentDataContainer().get(key, PersistentDataType.STRING);
     }
 
 
@@ -209,7 +257,7 @@ public class CustomListener  implements Listener {
         chain.removeChain(victim);
     }
 
-    public void tick() {
+    private void tick() {
         plugin.getServer().getGlobalRegionScheduler().runAtFixedRate(plugin, task -> {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 List<String> items = getCustoms(player);

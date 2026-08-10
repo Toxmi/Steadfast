@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
-import static com.toxmi.steadfast.utils.Potion.*;
+import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Adrenaline extends CustomEnchant {
     @Override

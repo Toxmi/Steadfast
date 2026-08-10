@@ -7,7 +7,7 @@ import org.bukkit.event.Event;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
-import static com.toxmi.steadfast.utils.Potion.*;
+import static com.toxmi.steadfast.utils.Potion.removePotionEffect;
 
 public class Immunity extends CustomEnchant {
     @Override

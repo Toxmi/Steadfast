@@ -23,7 +23,7 @@ public class Trickster extends CustomEnchant {
         List<ItemStack> hotbar = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
 
-            hotbar.add( victim.getInventory().getItem(i));
+            hotbar.add(victim.getInventory().getItem(i));
         }
 
         // Shuffle the hotbar
@@ -32,7 +32,7 @@ public class Trickster extends CustomEnchant {
         // Set the hotbar to the randomized version
         int slot = 0;
         for (ItemStack item : hotbar) {
-            if (item == null){
+            if (item == null) {
                 victim.getInventory().setItem(slot, new ItemStack(Material.AIR));
                 slot++;
                 continue;

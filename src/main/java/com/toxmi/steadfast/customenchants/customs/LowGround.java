@@ -10,6 +10,8 @@ public class LowGround extends CustomEnchant {
     @Override
     public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
+
+        // Check if the target is at least 0.25 blocks above the player
         if (e.getDamager().getLocation().getBlockY() - 0.25 < e.getEntity().getLocation().getBlockY()) {
             e.setDamage(e.getDamage() * cm.getVar1("lowground"));
         }

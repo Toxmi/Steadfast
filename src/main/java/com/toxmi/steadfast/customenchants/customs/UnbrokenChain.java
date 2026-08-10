@@ -12,14 +12,11 @@ import java.util.Map;
 public class UnbrokenChain extends CustomEnchant {
     private final Map<ChainStack, Integer> chainStacks = new HashMap<>();
 
-    private record ChainStack(Player attacker, Player victim) {
-    }
-
     @Override
     public void useAbility(Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
         if (!(e.getEntity() instanceof Player victim)) return;
-        // Check if the attacker has U-Chain stacks on the victim and if not set stacks to 0
+        // Check if the attacker has U-Chain stacks on the victim and if not, set stacks to 0
         ChainStack stack = new ChainStack(player, victim);
         int stacks = chainStacks.getOrDefault(stack, 0);
 
@@ -38,5 +35,8 @@ public class UnbrokenChain extends CustomEnchant {
                 chainStacks.remove(stack);
             }
         }
+    }
+
+    private record ChainStack(Player attacker, Player victim) {
     }
 }
