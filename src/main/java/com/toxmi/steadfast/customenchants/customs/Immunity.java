@@ -11,9 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.removePotionEffect;
 
 public class Immunity extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
-        if (!getPDC(player.getInventory().getBoots(), Keys.customKey).equalsIgnoreCase("immunity")) return;
+//        if (!getPDC(player.getInventory().getBoots(), Keys.customKey).equalsIgnoreCase("immunity")) return;
         removePotionEffect(PotionEffectType.WEAKNESS, player);
         removePotionEffect(PotionEffectType.WITHER, player);
         removePotionEffect(PotionEffectType.POISON, player);

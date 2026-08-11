@@ -12,10 +12,11 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 public class Delusional extends CustomEnchant {
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
         boolean armorWorn = false;
         // Check if armor is worn
+        assert player != null;
         for (ItemStack item : player.getInventory().getArmorContents()) {
             if (item != null) {
                 armorWorn = true;

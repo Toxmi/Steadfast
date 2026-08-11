@@ -11,9 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Frenzy extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
-        if (!getPDC(player.getInventory().getHelmet(), Keys.customKey).equalsIgnoreCase("extinguish")) return;
+//        if (!getPDC(player.getInventory().getHelmet(), Keys.customKey).equalsIgnoreCase("extinguish")) return;
         addPotionEffect(PotionEffectType.HASTE, player, 1, (int) cm.getVar1("frenzy"));
     }
 }

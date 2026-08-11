@@ -11,9 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Underdog extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
-        if (!getPDC(player.getInventory().getItemInMainHand(), Keys.customKey).equalsIgnoreCase("underdog")) return;
+        assert player != null;
         if (player.getHealth() < 16) {
             addPotionEffect(PotionEffectType.STRENGTH, player, 2, 3);
         }

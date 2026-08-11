@@ -11,7 +11,7 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Lifesteal extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         if (!(e.getEntity() instanceof Player)) return;
         if (Math.random() > cm.getVar1("lifesteal")) return;

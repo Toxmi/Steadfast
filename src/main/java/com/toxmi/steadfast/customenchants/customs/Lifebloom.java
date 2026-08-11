@@ -10,7 +10,7 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Lifebloom extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
         addPotionEffect(PotionEffectType.REGENERATION, player, 2, 1);
     }

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Unstable extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         // TO DO
     }
 }

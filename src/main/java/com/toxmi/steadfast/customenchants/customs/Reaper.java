@@ -7,9 +7,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
@@ -23,7 +21,7 @@ public class Reaper extends CustomEnchant {
     );
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         if (!e.isCritical()) return;
         if (!(e.getEntity() instanceof Player victim)) return;

@@ -10,10 +10,11 @@ import org.jetbrains.annotations.Nullable;
 public class Concuss extends CustomEnchant {
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         if (!(e.getEntity() instanceof Player victim)) return;
         if (!e.getDamageSource().getDamageType().equals(DamageType.MACE_SMASH)) return;
+        assert player != null;
         if (cm.isOnCooldown("concuss", player.getUniqueId())) return;
         playerScheduler(victim, () -> {
             cl.disableCustoms(victim.getUniqueId());

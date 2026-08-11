@@ -16,8 +16,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Heavenly extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDeathEvent e)) return;
+        assert player != null;
         player.sendMessage("yes");
         if (cm.isOnCooldown("heavenly", player.getUniqueId())) return;
         // Cancel the event and set the player's health to 10 hearts

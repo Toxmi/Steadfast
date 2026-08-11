@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Critical extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         if (!e.isCritical()) return;
         if (Math.random() > cm.getVar1("critical")) return;

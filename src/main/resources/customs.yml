@@ -17,7 +17,7 @@ customs:
     material: MACE
     enabled: true
     cooldown: 0
-    variable1: null
+    variable1: 2.0 # Velocity force
     variable2: null
     variable3: null
   athletic:
@@ -122,7 +122,7 @@ customs:
     material: DIAMOND_LEGGINGS
     enabled: true
     cooldown: 0
-    variable1: 1.0
+    variable1: 1.0 # Speed amplifier
     variable2: null
     variable3: null
   extinguish:
@@ -157,7 +157,7 @@ customs:
     material: DIAMOND_HELMET
     enabled: true
     cooldown: 0
-    variable1: 3.0
+    variable1: 3.0 # Haste amplifier
     variable2: null
     variable3: null
   frost:
@@ -276,7 +276,7 @@ customs:
     material: SHIELD
     enabled: true
     cooldown: 0
-    variable1: 3.0
+    variable1: 3.0 # Regeneration amplifier
     variable2: null
     variable3: null
   reaper:

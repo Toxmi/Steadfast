@@ -11,8 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Rally extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
+        assert player != null;
         if (player.isBlocking()) {
             addPotionEffect(PotionEffectType.REGENERATION, player, 2, (int) cm.getVar1("rally"));
         }

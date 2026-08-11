@@ -11,8 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Bulwark extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof PlayerShieldDisableEvent e)) return;
+        assert player != null;
         if (cm.isOnCooldown("bulwark", player.getUniqueId())) return;
         addPotionEffect(PotionEffectType.RESISTANCE, player, cm.getVar1("bulwark"), 2);
         cm.addCooldown("bulwark", player.getUniqueId());

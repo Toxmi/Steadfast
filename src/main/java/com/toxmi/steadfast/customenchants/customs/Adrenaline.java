@@ -11,7 +11,7 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Adrenaline extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDeathEvent)) return;
         addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar1("adrenaline"), 2);
         addPotionEffect(PotionEffectType.SPEED, player, cm.getVar2("adrenaline"), 2);

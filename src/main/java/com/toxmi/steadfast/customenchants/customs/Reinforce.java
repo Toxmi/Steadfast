@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Reinforce extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof PlayerItemDamageEvent e)) return;
         e.setDamage(e.getDamage() / 2);
     }

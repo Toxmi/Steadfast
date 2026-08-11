@@ -11,8 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Berserk extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent)) return;
+        assert player != null;
         if (cm.isOnCooldown("berserk", player.getUniqueId())) return;
         // Add Strength 3 to player for X duration
         addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar1("berserk"), 3);

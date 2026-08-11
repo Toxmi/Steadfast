@@ -8,8 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class Shock extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
+        assert player != null;
         if (cm.isOnCooldown("shock", player.getUniqueId())) return;
         e.setCancelled(true);
         cm.addCooldown("shock", player.getUniqueId());

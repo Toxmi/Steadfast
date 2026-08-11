@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Slash extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         Entity victim = e.getEntity();
         for (LivingEntity le : victim.getLocation().getNearbyLivingEntities(cm.getVar1("slash"))) {

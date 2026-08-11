@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Counter extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof PlayerShieldDisableEvent e)) return;
         if (Math.random() > cm.getVar1("counter")) return;
         if (e.getDamager() instanceof Player attacker) {

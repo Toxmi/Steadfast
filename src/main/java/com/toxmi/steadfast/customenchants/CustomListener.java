@@ -20,6 +20,8 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -203,6 +205,7 @@ public class CustomListener  implements Listener {
     void onShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         String pdc = getPDC(event.getBow(), Keys.customKey);
+        setPDC(event.getEntity(), pdc, Keys.customKey);
         callCustom(player, pdc, event);
     }
 
@@ -216,7 +219,7 @@ public class CustomListener  implements Listener {
         return customs;
     }
 
-    private void setPDC(Projectile item, String value, NamespacedKey key) {
+    private void setPDC(Entity item, String value, NamespacedKey key) {
         item.getPersistentDataContainer().set(key, PersistentDataType.STRING, value);
     }
 
@@ -253,8 +256,10 @@ public class CustomListener  implements Listener {
         chain.removeChain(victim);
     }
 
-    private void callCustom(Player player, String custom, Event event) {
-        if (disabledCustoms.contains(player.getUniqueId())) return;
+    private void callCustom(@Nullable Player player, @NotNull String custom, @Nullable Event event) {
+        if (player != null) {
+            if (disabledCustoms.contains(player.getUniqueId())) return;
+        }
         if (customs.containsKey(custom)) {
             customs.get(custom).useAbility(player, event);
         }

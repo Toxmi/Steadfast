@@ -13,7 +13,7 @@ public class UnbrokenChain extends CustomEnchant {
     private final Map<ChainStack, Integer> chainStacks = new HashMap<>();
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
         if (!(e.getEntity() instanceof Player victim)) return;
         // Check if the attacker has U-Chain stacks on the victim and if not, set stacks to 0

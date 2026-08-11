@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class LowGround extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
 
         // Check if the target is at least 0.25 blocks above the player

@@ -11,8 +11,9 @@ import static com.toxmi.steadfast.utils.Potion.addPotionEffect;
 
 public class Clapback extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
+        assert player != null;
         if (cm.isOnCooldown("clapback", player.getUniqueId())) return;
         if (!(e.getDamageSource().getCausingEntity() instanceof Player attacker)) return;
         // Damage the attacker by the same amount as the damage dealt to the victim

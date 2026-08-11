@@ -15,8 +15,9 @@ public class FirstStrike extends CustomEnchant {
     private final Map<UUID, Long> cooldown = new HashMap<>();
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageEvent e)) return;
+        assert player != null;
         if (cm.isOnCooldown("firststrike", player.getUniqueId())) return;
         Entity victim = e.getEntity();
         player.sendMessage("First Strike!");

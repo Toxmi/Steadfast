@@ -26,5 +26,5 @@ public abstract class CustomEnchant extends Scheduler {
         return item.getPersistentDataContainer().get(key, PersistentDataType.STRING);
     }
 
-    public abstract void useAbility(Player player, @Nullable Event event);
+    public abstract void useAbility(@Nullable Player player, @Nullable Event event);
 }

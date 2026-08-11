@@ -11,7 +11,7 @@ import static com.toxmi.steadfast.utils.Potion.removePotionEffect;
 
 public class Ninja extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (event != null) return;
         addPotionEffect(PotionEffectType.INVISIBILITY, player, 2, 1);
         removePotionEffect(PotionEffectType.GLOWING, player);

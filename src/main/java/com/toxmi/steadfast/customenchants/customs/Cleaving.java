@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class Cleaving extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof PlayerShieldDisableEvent e)) return;
         e.getPlayer().damage(cm.getVar1("cleaving"));
     }

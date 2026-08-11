@@ -32,7 +32,7 @@ public class Quarry extends CustomEnchant {
 
 
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof BlockBreakEvent e)) return;
         Location loc = e.getBlock().getLocation();
         ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
@@ -46,6 +46,7 @@ public class Quarry extends CustomEnchant {
                     if (blockedBlocks.contains(target.getType()) && center.getType() != target.getType()) continue;
                     if (target.getType().isSolid()) {
                         target.breakNaturally(item);
+                        assert player != null;
                         item.damage(1, player);
                     }
                 }

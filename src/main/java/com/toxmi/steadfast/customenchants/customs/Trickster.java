@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Trickster extends CustomEnchant {
     @Override
-    public void useAbility(Player player, @Nullable Event event) {
+    public void useAbility(@Nullable Player player, @Nullable Event event) {
         if (!(event instanceof EntityDamageByEntityEvent e)) return;
         if (!(e.getEntity() instanceof Player victim)) return;
         if (Math.random() < cm.getVar1("trickster")) return;

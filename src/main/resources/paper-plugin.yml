@@ -5,5 +5,7 @@ version: '${version}'
 main: com.toxmi.steadfast.Steadfast
 api-version: '1.21.11'
 load: STARTUP
+folia-supported: true
+
 
 authors: [ Toxmi ]
