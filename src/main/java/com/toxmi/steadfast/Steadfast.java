@@ -2,6 +2,7 @@ package com.toxmi.steadfast;
 
 import com.toxmi.steadfast.commands.GiveCustomCommand;
 import com.toxmi.steadfast.customenchants.CustomListener;
+import com.toxmi.steadfast.utils.Scheduler;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,12 +10,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Steadfast extends JavaPlugin {
     private static Steadfast instance;
     private CustomListener customListener;
+    private Scheduler scheduler;
 
     @Override
     public void onEnable() {
         instance = this;
         saveResource("customs.yml", false);
         // Plugin startup logic
+        this.scheduler = new Scheduler(this);
         initListeners();
         initCommands();
     }

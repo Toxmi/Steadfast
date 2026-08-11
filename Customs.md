@@ -474,7 +474,7 @@ All custom enchants, grouped by the item they go on. Values shown are the defaul
 </details>
 
 <details>
-<summary><b>Lifebloom</b></summary>
+<summary><b>Life bloom</b></summary>
 
 **Description:** `Radiate permanent Regeneration I in a 9 block radius that affects you and your team members`
 

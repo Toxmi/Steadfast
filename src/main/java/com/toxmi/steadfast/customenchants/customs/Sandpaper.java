@@ -3,11 +3,21 @@ package com.toxmi.steadfast.customenchants.customs;
 import com.toxmi.steadfast.customenchants.CustomEnchant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public class Sandpaper extends CustomEnchant {
     @Override
     public void useAbility(Player player, @Nullable Event event) {
-        // TO DO
+        if (!(event instanceof EntityDamageByEntityEvent e)) return;
+        if (!(e.getEntity() instanceof Player victim)) return;
+        if (cm.isOnCooldown("sandpaper", player.getUniqueId())) return;
+        for (ItemStack item : victim.getInventory().getArmorContents()) {
+            if (item == null) continue;
+            item.damage(1,player);
+        }
+        cm.addCooldown("sandpaper", player.getUniqueId());
+
     }
 }
