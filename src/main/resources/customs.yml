@@ -353,7 +353,7 @@ customs:
     material: DIAMOND_HELMET
     enabled: true
     cooldown: 40
-    variable1: null
+    variable1: 16 # Teleport radius
     variable2: null
     variable3: null
   volley:
