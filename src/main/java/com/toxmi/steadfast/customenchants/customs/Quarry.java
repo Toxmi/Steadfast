@@ -3,6 +3,7 @@ package com.toxmi.steadfast.customenchants.customs;
 import com.toxmi.steadfast.customenchants.CustomEnchant;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -38,6 +39,8 @@ public class Quarry extends CustomEnchant {
         ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
         Block center = loc.getBlock();
         // Loop through all surrounding blocks
+        loc.getWorld().playSound(loc, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+        assert player != null;
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
@@ -46,7 +49,6 @@ public class Quarry extends CustomEnchant {
                     if (blockedBlocks.contains(target.getType()) && center.getType() != target.getType()) continue;
                     if (target.getType().isSolid()) {
                         target.breakNaturally(item);
-                        assert player != null;
                         item.damage(1, player);
                     }
                 }

@@ -36,7 +36,7 @@ public class Heavenly extends CustomEnchant {
 
         // Simulate the effect of totem of undying
         player.getWorld().playSound(player.getLocation(), Sound.ITEM_TOTEM_USE, 1, 1);
-        player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, player.getLocation(), 50, 3, 3, 3);
+        player.getWorld().spawnParticle(Particle.TOTEM_OF_UNDYING, player.getEyeLocation(), 50, 3, 3, 3);
 
         // Decrease the helmet's durability by 1/3 of its max durability
         ItemStack item = player.getInventory().getHelmet();

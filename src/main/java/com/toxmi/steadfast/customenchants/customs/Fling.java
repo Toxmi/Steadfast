@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -14,6 +15,6 @@ public class Fling extends CustomEnchant {
         if (!(e.getEntity() instanceof Player victim)) return;
         if (Math.random() > cm.getVar1("fling")) return;
         victim.setVelocity(victim.getVelocity().add(new Vector(0, cm.getVar2("fling"), 0)));
-
+        victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0f, 1.0f);
     }
 }

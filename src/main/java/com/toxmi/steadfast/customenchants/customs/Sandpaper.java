@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -21,6 +22,6 @@ public class Sandpaper extends CustomEnchant {
             item.damage(1,player);
         }
         cm.addCooldown("sandpaper", player.getUniqueId());
-
+        victim.getWorld().playSound(victim.getLocation(), Sound.BLOCK_COMPOSTER_FILL, 1.0f, 1.0f);
     }
 }

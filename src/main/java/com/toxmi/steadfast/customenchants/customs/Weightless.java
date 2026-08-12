@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -12,6 +13,8 @@ public class Weightless extends CustomEnchant {
         if (!(event instanceof EntityDamageEvent e)) return;
         if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL)) {
             e.setCancelled(true);
+            assert player != null;
+            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_HORSE_LAND, 1.0f, 1.0f);
         }
     }
 }

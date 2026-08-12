@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -17,7 +18,7 @@ public class Berserk extends CustomEnchant {
         if (cm.isOnCooldown("berserk", player.getUniqueId())) return;
         // Add Strength 3 to player for X duration
         addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar1("berserk"), 3);
-
+        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1.0f, 1.0f);
         // Add Strength 2 to player for X duration after previous strength runs out
         plugin.getServer().getRegionScheduler().runDelayed(plugin, player.getLocation(), task -> {
             addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar2("berserk"), 2);

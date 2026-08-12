@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -21,5 +22,6 @@ public class Clapback extends CustomEnchant {
         // Add Slowness effect to the attacker for 5 seconds
         addPotionEffect(PotionEffectType.SLOWNESS, attacker, 5, 4);
         cm.addCooldown("clapback", player.getUniqueId());
+        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0f, 1.0f);
     }
 }

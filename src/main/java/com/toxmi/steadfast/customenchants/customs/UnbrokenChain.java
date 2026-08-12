@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -26,6 +27,7 @@ public class UnbrokenChain extends CustomEnchant {
             // Increase damage by 1 + x * stacks
             double multiplier = Math.min(1 + stacks * 0.05, 1.5);
             e.setDamage(e.getDamage() * multiplier);
+            victim.getWorld().playSound(victim.getLocation(), Sound.BLOCK_CHAIN_BREAK, 1.0f, 1.0f);
         }
     }
 

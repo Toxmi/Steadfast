@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -16,6 +17,8 @@ public class Adrenaline extends CustomEnchant {
         addPotionEffect(PotionEffectType.STRENGTH, player, cm.getVar1("adrenaline"), 2);
         addPotionEffect(PotionEffectType.SPEED, player, cm.getVar2("adrenaline"), 2);
         addPotionEffect(PotionEffectType.REGENERATION, player, cm.getVar3("adrenaline"), 1);
+        assert player != null;
+        player.playSound(player.getLocation(), Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 1.0f, 1.0f);
     }
 
 }

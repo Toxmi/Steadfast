@@ -1,6 +1,7 @@
 package com.toxmi.steadfast.customenchants.customs;
 
 import com.toxmi.steadfast.customenchants.CustomEnchant;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -33,5 +34,6 @@ public class FirstStrike extends CustomEnchant {
         // Add cooldowns to victim and the user
         cooldown.put(victim.getUniqueId(), System.currentTimeMillis());
         cm.addCooldown("firststrike", player.getUniqueId());
+        victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.0f);
     }
 }
