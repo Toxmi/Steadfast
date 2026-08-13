@@ -1,9 +1,11 @@
 package com.toxmi.steadfast;
 
 import com.toxmi.steadfast.core.commands.GiveCustomCommand;
-import com.toxmi.steadfast.modules.customenchants.CustomListener;
+import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
+import com.toxmi.steadfast.modules.customenchants.CustomListener;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,6 +13,14 @@ public final class Steadfast extends JavaPlugin {
     private static Steadfast instance;
     private CustomListener customListener;
     private Scheduler scheduler;
+    private DatabaseManager dbm;
+    private String databaseType;
+
+    private FileConfiguration config;
+
+    public static Steadfast get() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
@@ -18,13 +28,23 @@ public final class Steadfast extends JavaPlugin {
         saveResource("customs.yml", false);
         // Plugin startup logic
         this.scheduler = new Scheduler(this);
+        this.config = getConfig();
+        if (config.getBoolean("database.enabled")) {
+
+
+            databaseType = getConfig().getString("database.type");
+
+            this.dbm = new DatabaseManager(databaseType);
+            dbm.connect();
+            dbm.initTables();
+        }
         initListeners();
         initCommands();
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        dbm.close();
     }
 
     private void initListeners() {
@@ -42,8 +62,8 @@ public final class Steadfast extends JavaPlugin {
         });
     }
 
-    public static Steadfast get() {
-        return instance;
+    public String getDatabaseType() {
+        return databaseType;
     }
 
     public CustomListener getCustomListener() {

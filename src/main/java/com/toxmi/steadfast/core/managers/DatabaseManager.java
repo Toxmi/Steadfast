@@ -1,27 +1,55 @@
 package com.toxmi.steadfast.core.managers;
 
+import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.utils.SQL;
+import com.toxmi.steadfast.core.utils.Scheduler;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
 import java.io.File;
 import java.sql.*;
+import java.util.*;
 
 public class DatabaseManager {
-    private final File dbFile;
+    private final Steadfast plugin;
+    private final Scheduler sch;
+
     private Connection connection;
     private RowSetFactory factory;
+    private String dataBaseType;
 
-    public DatabaseManager(File dbFile) {
-        this.dbFile = dbFile;
+    private final Set<PreparedStatement> queuedStatements = Collections.synchronizedSet(new HashSet<>());
+
+    public DatabaseManager(String dataBaseType) {
+        this.dataBaseType = dataBaseType;
+        this.plugin = Steadfast.get();
+        this.sch = Scheduler.get();
     }
 
     public void connect() {
-        File parent = dbFile.getParentFile();
-        if(parent != null) parent.mkdirs();
 
-        String url = "jdbc:postgresql:database" + dbFile.getAbsolutePath();
+        FileConfiguration config = Steadfast.get().getConfig();
+        String url;
+
+        if (dataBaseType.equalsIgnoreCase("sqlite")) {
+            File dbFile = new File(plugin.getDataFolder(), "SteadfastData.db");
+            File parent = dbFile.getParentFile();
+            if(parent != null) parent.mkdirs();
+            url = "jdbc:sqlite:" + dbFile.getAbsolutePath();
+        } else if (dataBaseType.equalsIgnoreCase("postgresql")) {
+            url = String.format("jdbc:postgresql://%s:%s/%s?user=%s&password=%s&ssl=true",
+                    config.getString("database.host"),
+                    config.getString("database.port"),
+                    config.getString("database.database"),
+                    config.getString("database.username"),
+                    config.getString("database.password")
+            );
+        } else {
+            throw new RuntimeException("Unsupported database type: " + config.getString("database.type"));
+        }
+
         try {
             connection = DriverManager.getConnection(url);
 
@@ -96,6 +124,7 @@ public class DatabaseManager {
     }
 
     private synchronized ResultSet executeStatement(String sql,boolean result, Object... parameters) {
+
         try (PreparedStatement st = connection.prepareStatement(sql)) {
 
             for (int i = 0; i < parameters.length; i++) {

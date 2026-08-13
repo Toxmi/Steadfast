@@ -2,6 +2,8 @@ package com.toxmi.steadfast.modules.claims;
 
 public enum ClaimRole {
     OWNER,
+    CO_LEADER,
     OFFICER,
-    MEMBER
+    MEMBER,
+    LIMITED_MEMBER
 }
