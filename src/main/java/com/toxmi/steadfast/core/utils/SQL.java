@@ -23,7 +23,7 @@ public enum SQL {
             ),
     CREATE_PLAYER_TABLE
             ("""
-                    
+                        
             """,
             """
             

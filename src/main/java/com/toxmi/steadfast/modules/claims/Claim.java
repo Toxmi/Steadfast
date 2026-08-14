@@ -15,7 +15,7 @@ public class Claim {
     private final Set<String> CHUNKS = new HashSet<>();
     private final Map<UUID, Long> INVITES = new HashMap<>();
 
-    private UUID claimID;
+    private final UUID claimID;
     private String claimName;
     private Location claimChestLoc;
 
@@ -27,9 +27,14 @@ public class Claim {
 
     private double power = 0.0;
 
+    private ShieldState shieldState = ShieldState.INACTIVE;
+    private int shieldCharge = 0;
+    private ShieldMode shieldMode = ShieldMode.AUTOMATIC;
+
 
     public Claim(UUID claimID) {
         this.plugin = Steadfast.get();
+        this.claimID = claimID;
     }
 
     public Claim(Player player, Location claimChestLocation) {
@@ -145,4 +150,44 @@ public class Claim {
     }
 
 
+    public String getClaimName() {
+        return claimName;
+    }
+
+    public void setClaimName(String claimName) {
+        this.claimName = claimName;
+    }
+
+    public Location getClaimChestLoc() {
+        return claimChestLoc;
+    }
+
+    public UUID getClaimID() {
+        return claimID;
+    }
+
+
+    public int getShieldCharge() {
+        return shieldCharge;
+    }
+
+    public void setShieldCharge(int shieldCharge) {
+        this.shieldCharge = shieldCharge;
+    }
+
+    public ShieldState getShieldState() {
+        return shieldState;
+    }
+
+    public void setShieldState(ShieldState shieldState) {
+        this.shieldState = shieldState;
+    }
+
+    public ShieldMode getShieldMode() {
+        return shieldMode;
+    }
+
+    public void setShieldMode(ShieldMode shieldMode) {
+        this.shieldMode = shieldMode;
+    }
 }
