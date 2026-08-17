@@ -106,7 +106,6 @@ public class ItemBuilder {
             return this;
         }
 
-
         public CustomItem lore(List<String> lines) {
             if (meta == null) meta = item.getItemMeta();
             if (lines != null) {
@@ -208,7 +207,6 @@ public class ItemBuilder {
             return this;
         }
 
-
         /**
          * Sets the item model key.
          *
@@ -218,7 +216,6 @@ public class ItemBuilder {
             meta.setItemModel(key);
             return this;
         }
-
 
         /**
          * Creates the item.
@@ -242,7 +239,6 @@ public class ItemBuilder {
     }
 
     public ItemStack getFiller() {
-
         return customItem(Material.GRAY_STAINED_GLASS_PANE,1)
                 .displayName(Component.text(""))
                 .hideComponent(true)

@@ -1,6 +1,7 @@
 package com.toxmi.steadfast;
 
 import com.toxmi.steadfast.core.commands.GiveCustomCommand;
+import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.customenchants.CustomListener;
@@ -50,6 +51,7 @@ public final class Steadfast extends JavaPlugin {
     private void initListeners() {
         customListener = new CustomListener(this);
         registerListener(customListener);
+        registerListener(new MenuListener(this));
     }
 
     private void registerListener(Listener listener) {

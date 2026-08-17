@@ -14,6 +14,7 @@ public class Claim {
     private final Map<UUID, ClaimRole> MEMBERS = new HashMap<>();
     private final Set<String> CHUNKS = new HashSet<>();
     private final Map<UUID, Long> INVITES = new HashMap<>();
+    private final Map<Integer, Artifact> artifacts = new HashMap<>();
 
     private final UUID claimID;
     private String claimName;
@@ -25,12 +26,12 @@ public class Claim {
     private double claimChestHealth = 100;
     private double claimChestMaxHealth = 100;
 
-    private double power = 0.0;
+    private int power = 0;
+    private final Map<String, Integer> powerSources = new HashMap<>();
 
     private ShieldState shieldState = ShieldState.INACTIVE;
     private int shieldCharge = 0;
     private ShieldMode shieldMode = ShieldMode.AUTOMATIC;
-
 
     public Claim(UUID claimID) {
         this.plugin = Steadfast.get();
@@ -133,11 +134,15 @@ public class Claim {
         return MEMBERS.keySet();
     }
 
-    public double getPower() {
+    public Map<UUID, ClaimRole> getMembersMap() {
+        return MEMBERS;
+    }
+
+    public int getPower() {
         return power;
     }
 
-    public void setPower(double power) {
+    public void setPower(int power) {
         this.power = power;
     }
 
@@ -189,5 +194,41 @@ public class Claim {
 
     public void setShieldMode(ShieldMode shieldMode) {
         this.shieldMode = shieldMode;
+    }
+
+    public Map<Integer, Artifact> getArtifacts() {
+        return artifacts;
+    }
+
+    public void addArtifact(Artifact artifact) {
+        artifacts.put(artifacts.size() + 1, artifact);
+    }
+
+    public void removeArtifact(int slot) {
+        artifacts.replace(slot, null);
+    }
+
+    public void unlockArtifactSlot(int slot) {
+        artifacts.put(slot, null);
+    }
+
+    public int getPowerFromASource(String source) {
+        return powerSources.getOrDefault(source.toLowerCase(), 0);
+    }
+
+    public void addPowerFromASource(String source, int amount) {
+        powerSources.put(source.toLowerCase(), getPowerFromASource(source) + amount);
+    }
+
+    public int getChunkCount() {
+        return CHUNKS.size();
+    }
+
+    public UUID getOwner() {
+        return MEMBERS.entrySet().stream().filter(e -> e.getValue() == ClaimRole.OWNER).map(Map.Entry::getKey).findFirst().orElse(null);
+    }
+
+    public Map<UUID, Long> getInvites() {
+        return INVITES;
     }
 }

@@ -38,6 +38,7 @@ public class Potion {
             ((LivingEntity) entity).addPotionEffect(new PotionEffect(type, (int) duration, amplifier));
         }
     }
+
     /**
      * Adds an infinite potion effect to an entity
      *
