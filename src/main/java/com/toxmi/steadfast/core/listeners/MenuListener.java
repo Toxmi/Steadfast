@@ -14,10 +14,11 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MenuListener implements Listener {
     private final MenuManager manager;
-    private final Map<UUID, Long> clickDebounce = new HashMap<>();
+    private final Map<UUID, Long> clickDebounce = new ConcurrentHashMap<>();
     private static final long clickDelay = 100L;
     public MenuListener(Steadfast plugin) {
         this.manager = MenuManager.get();

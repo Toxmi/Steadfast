@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.*;
 
 public class DatabaseManager {
+    private static DatabaseManager instance;
     private final Steadfast plugin;
     private final Scheduler sch;
 
@@ -20,12 +21,19 @@ public class DatabaseManager {
     private RowSetFactory factory;
     private String dataBaseType;
 
-    private final Set<PreparedStatement> queuedStatements = Collections.synchronizedSet(new HashSet<>());
 
     public DatabaseManager(String dataBaseType) {
+        instance = this;
         this.dataBaseType = dataBaseType;
         this.plugin = Steadfast.get();
         this.sch = Scheduler.get();
+    }
+
+    public synchronized static DatabaseManager get() {
+        if (instance == null) {
+            instance = new DatabaseManager(Steadfast.get().getDatabaseType());
+        }
+        return instance;
     }
 
     public void connect() {

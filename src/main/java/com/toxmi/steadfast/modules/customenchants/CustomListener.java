@@ -24,13 +24,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomListener  implements Listener {
     private static CustomListener instance;
     private final Steadfast plugin;
     private final Scheduler sch;
-    private final Map<String, CustomEnchant> customs = new HashMap<>();
-    private final Set<UUID> disabledCustoms = new HashSet<>();
+    private final Map<String, CustomEnchant> customs = new ConcurrentHashMap<>();
+    private final Set<UUID> disabledCustoms = Collections.synchronizedSet(new HashSet<>());
     private ScheduledTask task;
     private final List<String> customsList = List.of(
             "Adrenaline",

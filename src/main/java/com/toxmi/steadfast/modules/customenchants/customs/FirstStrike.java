@@ -11,9 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FirstStrike extends CustomEnchant {
-    private final Map<UUID, Long> cooldown = new HashMap<>();
+    private final Map<UUID, Long> cooldown = new ConcurrentHashMap<>();
 
     @Override
     public void useAbility(@Nullable Player player, @Nullable Event event) {

@@ -9,9 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UnbrokenChain extends CustomEnchant {
-    private final Map<ChainStack, Integer> chainStacks = new HashMap<>();
+    private final Map<ChainStack, Integer> chainStacks = new ConcurrentHashMap<>();
 
     @Override
     public void useAbility(@Nullable Player player, @Nullable Event event) {

@@ -9,14 +9,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.toxmi.steadfast.core.utils.Potion.addPotionEffect;
 import static com.toxmi.steadfast.core.utils.Potion.removePotionEffect;
 
 public class Athletic extends CustomEnchant {
     private static final long LEVEL_INTERVAL_MS = 3000L;
-    private static final Map<UUID, Integer> levels = new HashMap<>();
-    private static final Map<UUID, Long> lastLevelUp = new HashMap<>();
+    private static final Map<UUID, Integer> levels = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> lastLevelUp = new ConcurrentHashMap<>();
 
     @Override
     public void useAbility(@Nullable Player player, @Nullable Event event) {

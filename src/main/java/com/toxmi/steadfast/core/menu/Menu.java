@@ -16,10 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unused")
 public abstract class Menu implements InventoryHolder {
-    protected final Map<Integer, Button> buttons = new HashMap<>();
+    protected final Map<Integer, Button> buttons = new ConcurrentHashMap<>();
     protected Steadfast plugin = Steadfast.get();
     private final MenuManager manager = MenuManager.get();
     protected ItemBuilder ib = ItemBuilder.get();

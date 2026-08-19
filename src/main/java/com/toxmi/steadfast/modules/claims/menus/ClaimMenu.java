@@ -72,9 +72,9 @@ public class ClaimMenu extends Menu {
                                                 "<Gray>▪ </Gray>Claims: <Green><claimcount>/49</Green><br>" +
                                                 "<br>" +
                                                 "Artifacts:<br>" +
-                                                "<Gray>▪ </Gray>Slot 1: " + (claim.getArtifacts().get(1) != null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(1))) + "<br>" +
-                                                "<Gray>▪ </Gray>Slot 2: " + (claim.getArtifacts().get(2) != null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(2))) + "<br>" +
-                                                "<Gray>▪ </Gray>Slot 3: " + (claim.getArtifacts().get(3) != null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(3))) + "<br>" +
+                                                "<Gray>▪ </Gray>Slot 1: " + (claim.getArtifacts().get(1) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(1))) + "<br>" +
+                                                "<Gray>▪ </Gray>Slot 2: " + (claim.getArtifacts().get(2) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(2))) + "<br>" +
+                                                "<Gray>▪ </Gray>Slot 3: " + (claim.getArtifacts().get(3) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(3))) + "<br>" +
                                                 "<br>" +
                                                 String.format("Power: <Dark_red>%s</Dark_red> <Dark_gray>(#%s)</Dark_gray> <br>", claim.getPower(), cm.getClaimRank(claim)) +
                                                 String.format("<Gray>▪ </Gray>Spawners: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource("spawners")) +

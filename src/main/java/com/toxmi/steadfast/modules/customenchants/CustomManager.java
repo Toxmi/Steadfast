@@ -10,12 +10,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomManager {
-    private final Map<String, Object[]> customs = new HashMap<>();
+    private final Map<String, Object[]> customs = new ConcurrentHashMap<>();
     private final Steadfast plugin = Steadfast.get();
 
-    private final Map<Cooldown, Long> cooldowns = new HashMap<>();
+    private final Map<Cooldown, Long> cooldowns = new ConcurrentHashMap<>();
     private static CustomManager instance;
     private File file;
     private FileConfiguration config;
