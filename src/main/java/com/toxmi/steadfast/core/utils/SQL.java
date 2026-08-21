@@ -9,19 +9,25 @@ public enum SQL {
                 claimid TEXT PRIMARY KEY,
                 claimname TEXT NOT NULL UNIQUE,
                 claimpower INTEGER DEFAULT 0,
+                wealthPower INTEGER DEFAULT 0,
+                spawnerPower INTEGER DEFAULT 0,
+                artifactPower INTEGER DEFAULT 0,
                 claimchestlocation TEXT DEFAULT NULL,
                 shieldcharge INTEGER DEFAULT 0,
                 shieldstate TEXT CHECK (shieldstate IN ('INACTIVE', 'ACTIVE', 'CHARGING', 'ACTIVATING', 'RECHARGING')) DEFAULT 'INACTIVE',
-                shieldmode TEXT CHECK (shieldmode IN ('MANUAL', 'AUTO')) DEFAULT 'AUTO',
-                artifact1 TEXT DEFAULT NULL,
-                artifact2 TEXT DEFAULT NULL,
-                artifact3 TEXT DEFAULT NULL
+                shieldmode TEXT CHECK (shieldmode IN ('MANUAL', 'AUTO')) DEFAULT 'AUTO'
             );
             CREATE TABLE IF NOT EXISTS claimchunks (
                 chunkkey TEXT PRIMARY KEY,
                 claimid TEXT NOT NULL REFERENCES claims(claimid) ON DELETE CASCADE
             );
             
+            CREATE TABLE IF NOT EXISTS claim_artifacts (
+                claimid TEXT NOT NULL REFERENCES claims(claimid) ON DELETE CASCADE,
+                artifact TEXT NOT NULL,
+                slot INTEGER NOT NULL,
+                PRIMARY KEY (claimid, slot)
+            );
             """,
             """
             CREATE TABLE IF NOT EXISTS claims (
@@ -99,7 +105,7 @@ public enum SQL {
     ),
     UPDATE_PLAYER_CLAIM(
             """
-            UPDATE players SET claimid = ? WHERE playerid = ?;
+            UPDATE players SET claimid = ?  WHERE playerid = ?;
             """,
             """
             UPDATE players SET claimid = ? WHERE playerid = ?;
@@ -176,11 +182,20 @@ public enum SQL {
             """
             SELECT claimid FROM claims
             """
-
     ),
     GET_CLAIM(
             """
-            SELECT * FROM claims WHERE claimid = ?;
+            SELECT
+                c.* ,
+                MAX(CASE WHEN ca.slot = 1 THEN ca.artifact END) AS artifact1,
+                MAX(CASE WHEN ca.slot = 2 THEN ca.artifact END) AS artifact2,
+                MAX(CASE WHEN ca.slot = 3 THEN ca.artifact END) AS artifact3
+            FROM claims c
+                LEFT JOIN claim_artifacts ca
+                    ON ca.claimid = c.claimid
+            GROUP BY
+                c.claimid,
+                c.claimname;
             """,
             """
             SELECT
@@ -215,6 +230,15 @@ public enum SQL {
             """
             INSERT INTO claims (claimid, claimname, claimchestlocation) VALUES (?, ?, ?);
             """
+    ),
+    UPDATE_CLAIM_NAME (
+            """
+            UPDATE claims SET claimname = ? WHERE claimid = ?;
+            """,
+            """
+            UPDATE claims SET claimname = ? WHERE claimid = ?;
+            """
+
     ),
     UPDATE_CLAIM_CHEST_LOCATION(
             """
@@ -278,6 +302,23 @@ public enum SQL {
             """,
             """
             UPDATE claims SET shield = jsonb_set(shield, '{mode}', to_jsonb(?::text)) WHERE claimid = ?;
+            """
+    ),
+    SET_ARTIFACT (
+            """
+            INSERT INTO claim_artifacts (artifact, slot, claimid)
+            VALUES (?, ?, ?)
+            ON CONFLICT (claimid, slot)
+                DO UPDATE SET artifact = excluded.artifact;
+            """,
+            """
+            WITH params AS (
+                SELECT ?::text AS artifact, ?::text AS slot, ? AS id
+            )
+            UPDATE claims
+                SET artifacts = jsonb_set(artifacts, ARRAY['slot' || (params.slot)::text], to_jsonb(params.artifact::text))
+            FROM params
+                WHERE claimid = params.id::text;
             """
     );
 

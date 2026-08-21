@@ -1,4 +1,4 @@
-package com.toxmi.steadfast.modules.claims;
+package com.toxmi.steadfast.modules.claims.enums;
 
 public enum ShieldMode {
     MANUAL,

@@ -3,10 +3,11 @@ package com.toxmi.steadfast.modules.claims.menus;
 import com.toxmi.steadfast.core.menu.Button;
 import com.toxmi.steadfast.core.menu.Menu;
 import com.toxmi.steadfast.core.utils.TimeFormatter;
-import com.toxmi.steadfast.modules.claims.Artifact;
+import com.toxmi.steadfast.modules.claims.enums.Artifact;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
-import com.toxmi.steadfast.modules.claims.ClaimRole;
+import com.toxmi.steadfast.modules.claims.enums.ClaimRole;
+import com.toxmi.steadfast.modules.claims.enums.PowerSource;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -77,9 +78,9 @@ public class ClaimMenu extends Menu {
                                                 "<Gray>▪ </Gray>Slot 3: " + (claim.getArtifacts().get(3) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(3))) + "<br>" +
                                                 "<br>" +
                                                 String.format("Power: <Dark_red>%s</Dark_red> <Dark_gray>(#%s)</Dark_gray> <br>", claim.getPower(), cm.getClaimRank(claim)) +
-                                                String.format("<Gray>▪ </Gray>Spawners: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource("spawners")) +
-                                                String.format("<Gray>▪ </Gray>Artifacts: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource("artifacts")) +
-                                                String.format("<Gray>▪ </Gray>Wealth: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource("wealth")) +
+                                                String.format("<Gray>▪ </Gray>Spawners: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.SPAWNER)) +
+                                                String.format("<Gray>▪ </Gray>Artifacts: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.ARTIFACT)) +
+                                                String.format("<Gray>▪ </Gray>Wealth: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.WEALTH)) +
                                                 "<br>" +
                                                 "<Yellow>➡ Click to manage your team",
                                         Placeholder.component("claimcount", Component.text(claim.getChunkCount()))

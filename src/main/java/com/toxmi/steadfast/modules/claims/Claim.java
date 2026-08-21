@@ -4,6 +4,7 @@ import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.SQL;
 import com.toxmi.steadfast.core.utils.Scheduler;
+import com.toxmi.steadfast.modules.claims.enums.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -25,7 +26,7 @@ public class Claim {
     private final Map<Integer, Artifact> artifacts = new ConcurrentHashMap<>();
 
     private final UUID claimID;
-    private final Map<String, Integer> powerSources = new ConcurrentHashMap<>();
+    private final Map<PowerSource, Integer> powerSources = new ConcurrentHashMap<>();
     private String claimName;
     private Location claimChestLoc;
     private boolean inCombat = false;
@@ -61,9 +62,9 @@ public class Claim {
                 if (rs == null || !rs.next()) return;
                 this.claimName = rs.getString("claimname");
                 this.power = rs.getInt("claimpower");
-                this.powerSources.put("spawners", rs.getInt("spawnerpower"));
-                this.powerSources.put("artifacts", rs.getInt("artifactpower"));
-                this.powerSources.put("wealth", rs.getInt("wealthpower"));
+                this.powerSources.put(PowerSource.SPAWNER, rs.getInt("spawnerpower"));
+                this.powerSources.put(PowerSource.ARTIFACT, rs.getInt("artifactpower"));
+                this.powerSources.put(PowerSource.WEALTH, rs.getInt("wealthpower"));
                 String[] claimChestLocString = rs.getString("claimchestloc").split(":");
                 double x = Double.parseDouble(claimChestLocString[0]);
                 double y = Double.parseDouble(claimChestLocString[1]);
@@ -166,18 +167,33 @@ public class Claim {
 
     public void addMember(UUID player) {
         MEMBERS.put(player, ClaimRole.MEMBER);
+        sch.async(() -> {
+            db.executeUpdate(SQL.UPDATE_PLAYER_CLAIM, player.toString(), claimID.toString());
+            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, ClaimRole.MEMBER.name(), player.toString(), claimID.toString());
+        });
     }
 
     public void removeMember(UUID player) {
         MEMBERS.remove(player);
+        sch.async(() -> {
+            db.executeUpdate(SQL.UPDATE_PLAYER_CLAIM, null, player.toString());
+            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, null, player.toString());
+        });
     }
 
     public void removeMember(Player player) {
         MEMBERS.remove(player.getUniqueId());
+        sch.async(() -> {
+            db.executeUpdate(SQL.UPDATE_PLAYER_CLAIM, null, player.getUniqueId().toString());
+            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, null, player.getUniqueId().toString());
+        });
     }
 
     public void changeRole(UUID player, ClaimRole role) {
         MEMBERS.put(player, role);
+        sch.async(() -> {
+            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, role.name(), player.toString());
+        });
     }
 
     public Set<UUID> getMembers() {
@@ -192,7 +208,7 @@ public class Claim {
         return power;
     }
 
-    public void setPower(int power) {
+    public void addPower(int power) {
         this.power = power;
     }
 
@@ -211,6 +227,9 @@ public class Claim {
 
     public void setClaimName(String claimName) {
         this.claimName = claimName;
+        sch.async(() -> {
+            db.executeUpdate(SQL.UPDATE_CLAIM_NAME, claimName, this.toString());
+        });
     }
 
     public Location getClaimChestLoc() {
@@ -236,6 +255,9 @@ public class Claim {
 
     public void setShieldState(ShieldState shieldState) {
         this.shieldState = shieldState;
+        sch.async(() -> {
+            db.executeUpdate(SQL.CHANGE_CLAIM_SHIELD_STATE, shieldState.name(), this.toString());
+        });
     }
 
     public ShieldMode getShieldMode() {
@@ -244,30 +266,42 @@ public class Claim {
 
     public void setShieldMode(ShieldMode shieldMode) {
         this.shieldMode = shieldMode;
+        sch.async(() -> {
+            db.executeUpdate(SQL.CHANGE_CLAIM_SHIELD_MODE, shieldMode.name(), this.toString());
+        });
     }
 
     public Map<Integer, Artifact> getArtifacts() {
         return artifacts;
     }
 
-    public void addArtifact(Artifact artifact) {
-        artifacts.put(artifacts.size() + 1, artifact);
+    public void addArtifact(Artifact artifact, int slot) {
+        artifacts.put(slot, artifact);
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_ARTIFACT, artifact.name(), slot, this.toString());
+        });
     }
 
     public void removeArtifact(int slot) {
-        artifacts.replace(slot, null);
+        artifacts.replace(slot, Artifact.EMPTY);
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_ARTIFACT, Artifact.EMPTY.getName(), slot, this.toString());
+        });
     }
 
     public void unlockArtifactSlot(int slot) {
-        artifacts.put(slot, null);
+        artifacts.put(slot, Artifact.EMPTY);
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_ARTIFACT, Artifact.EMPTY.getName(), slot, this.toString());
+        });
     }
 
-    public int getPowerFromASource(String source) {
-        return powerSources.getOrDefault(source.toLowerCase(), 0);
+    public int getPowerFromASource(PowerSource source) {
+        return powerSources.getOrDefault(source, 0);
     }
 
-    public void addPowerFromASource(String source, int amount) {
-        powerSources.put(source.toLowerCase(), getPowerFromASource(source) + amount);
+    public void addPowerFromASource(PowerSource source, int amount) {
+        powerSources.put(source, getPowerFromASource(source) + amount);
     }
 
     public int getChunkCount() {
@@ -280,5 +314,10 @@ public class Claim {
 
     public Map<UUID, Long> getInvites() {
         return INVITES;
+    }
+
+    @Override
+    public String toString() {
+        return claimID.toString();
     }
 }
