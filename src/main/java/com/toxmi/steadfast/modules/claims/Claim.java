@@ -53,12 +53,29 @@ public class Claim {
         this.claimID = UUID.randomUUID();
         this.claimName = String.format("%s's Claim", player.getName());
         this.claimChestLoc = claimChestLocation;
-        CHUNKS.add(getChunkKey(claimChestLocation));
+        initClaim(claimID, claimName, claimChestLocation);
+        addChunk(claimChestLocation.getChunk());
+    }
+
+    public void initClaim(UUID claimID, String claimName, Location claimChestLoc) {
+        sch.async(() -> {
+            String locKey = String.join(":", String.valueOf(claimChestLoc.getBlockX()), String.valueOf(claimChestLoc.getBlockY()), String.valueOf(claimChestLoc.getBlockZ()));
+            db.executeUpdate(SQL.INSERT_CLAIM, claimID.toString(), claimName, locKey);
+        });
+    }
+
+    public void deleteClaim() {
+        sch.async(() -> {
+            db.executeUpdate(SQL.DELETE_CLAIM, this.toString());
+            for (UUID member : MEMBERS.keySet()) {
+                db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, null, member.toString());
+            }
+        });
     }
 
     public void loadClaim() {
         sch.async(() -> {
-            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM, claimID.toString())) {
+            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM, this.toString())) {
                 if (rs == null || !rs.next()) return;
                 this.claimName = rs.getString("claimname");
                 this.power = rs.getInt("claimpower");
@@ -81,7 +98,7 @@ public class Claim {
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to load claim", e);
             }
-            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM_CHUNKS, claimID)) {
+            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM_CHUNKS, this.toString())) {
                 while (rs.next()) {
                     String chunkKey = rs.getString("chunkkey");
                     this.CHUNKS.add(chunkKey);
@@ -89,7 +106,7 @@ public class Claim {
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to load claim chunks", e);
             }
-            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM_MEMBERS, claimID)) {
+            try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM_MEMBERS, this.toString())) {
                 while (rs.next()) {
                     UUID memberUUID = UUID.fromString(rs.getString("playerid"));
                     ClaimRole role = ClaimRole.valueOf("claimrole");
@@ -98,6 +115,12 @@ public class Claim {
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to load claim members from database.", e);
             }
+        });
+    }
+
+    public void saveClaim() {
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_SHIELD_CHARGE, shieldCharge, this.toString());
         });
     }
 
@@ -168,8 +191,8 @@ public class Claim {
     public void addMember(UUID player) {
         MEMBERS.put(player, ClaimRole.MEMBER);
         sch.async(() -> {
-            db.executeUpdate(SQL.UPDATE_PLAYER_CLAIM, player.toString(), claimID.toString());
-            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, ClaimRole.MEMBER.name(), player.toString(), claimID.toString());
+            db.executeUpdate(SQL.UPDATE_PLAYER_CLAIM, player.toString(), this.toString());
+            db.executeUpdate(SQL.UPDATE_PLAYER_ROLE, ClaimRole.MEMBER.name(), player.toString(), this.toString());
         });
     }
 
@@ -206,10 +229,6 @@ public class Claim {
 
     public int getPower() {
         return power;
-    }
-
-    public void addPower(int power) {
-        this.power = power;
     }
 
     public void addInvite(UUID target) {
@@ -278,21 +297,21 @@ public class Claim {
     public void addArtifact(Artifact artifact, int slot) {
         artifacts.put(slot, artifact);
         sch.async(() -> {
-            db.executeUpdate(SQL.SET_ARTIFACT, artifact.name(), slot, this.toString());
+            db.executeUpdate(SQL.SET_ARTIFACT, slot, artifact.name(), this.toString());
         });
     }
 
     public void removeArtifact(int slot) {
         artifacts.replace(slot, Artifact.EMPTY);
         sch.async(() -> {
-            db.executeUpdate(SQL.SET_ARTIFACT, Artifact.EMPTY.getName(), slot, this.toString());
+            db.executeUpdate(SQL.SET_ARTIFACT, slot, Artifact.EMPTY.getName(), this.toString());
         });
     }
 
     public void unlockArtifactSlot(int slot) {
         artifacts.put(slot, Artifact.EMPTY);
         sch.async(() -> {
-            db.executeUpdate(SQL.SET_ARTIFACT, Artifact.EMPTY.getName(), slot, this.toString());
+            db.executeUpdate(SQL.SET_ARTIFACT, slot, Artifact.EMPTY.getName(), this.toString());
         });
     }
 
@@ -301,7 +320,22 @@ public class Claim {
     }
 
     public void addPowerFromASource(PowerSource source, int amount) {
-        powerSources.put(source, getPowerFromASource(source) + amount);
+        int newAmount = getPowerFromASource(source) + amount;
+        powerSources.put(source, newAmount);
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_POWER_FROM_SOURCE, source.name(), newAmount, this.toString());
+        });
+    }
+
+    public void setTotalPower() {
+        int totalPower = 0;
+        for (int power : powerSources.values()) {
+            totalPower += power;
+        }
+        this.power = totalPower;
+        sch.async(() -> {
+            db.executeUpdate(SQL.SET_TOTAL_POWER, power, this.toString());
+        });
     }
 
     public int getChunkCount() {
@@ -314,6 +348,32 @@ public class Claim {
 
     public Map<UUID, Long> getInvites() {
         return INVITES;
+    }
+
+    public boolean isMainChunk(Chunk chunk) {
+        return claimChestLoc.getChunk().equals(chunk);
+    }
+
+    public void addChunk(Chunk chunk) {
+        addChunk(getChunkKey(chunk));
+    }
+
+    public void addChunk(String chunkKey) {
+        CHUNKS.add(chunkKey);
+        sch.async(() -> {
+            db.executeUpdate(SQL.INSERT_CLAIM_CHUNK, chunkKey, this.toString());
+        });
+    }
+
+    public void removeChunk(String chunkKey) {
+        CHUNKS.remove(chunkKey);
+        sch.async(() -> {
+            db.executeUpdate(SQL.DELETE_CLAIM_CHUNK, chunkKey, this.toString());
+        });
+    }
+
+    public void removeChunk(Chunk chunk) {
+        removeChunk(getChunkKey(chunk));
     }
 
     @Override

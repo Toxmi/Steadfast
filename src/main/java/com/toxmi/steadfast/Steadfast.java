@@ -4,7 +4,9 @@ import com.toxmi.steadfast.core.commands.GiveCustomCommand;
 import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
+import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.customenchants.CustomListener;
+import com.toxmi.steadfast.modules.customenchants.CustomManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
@@ -13,9 +15,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Steadfast extends JavaPlugin {
     private static Steadfast instance;
     private CustomListener customListener;
+    private CustomManager customManager;
     private Scheduler scheduler;
     private DatabaseManager dbm;
     private String databaseType;
+    private ClaimManager claimManager;
 
     private FileConfiguration config;
 
@@ -30,27 +34,36 @@ public final class Steadfast extends JavaPlugin {
         // Plugin startup logic
         this.scheduler = new Scheduler(this);
         this.config = getConfig();
-        if (config.getBoolean("database.enabled")) {
+        if (this.config.getBoolean("database.enabled")) {
 
 
-            databaseType = getConfig().getString("database.type");
+            this.databaseType = getConfig().getString("database.type");
 
-            this.dbm = new DatabaseManager(databaseType);
-            dbm.connect();
-            dbm.initTables();
+            this.dbm = new DatabaseManager(this.databaseType);
+            this.dbm.connect();
+            this.dbm.initTables();
         }
+        initManagers();
         initListeners();
         initCommands();
     }
 
     @Override
     public void onDisable() {
-        dbm.close();
+        this.claimManager.saveClaims();
+        this.getServer().getScheduler().cancelTasks(this);
+        this.dbm.close();
+    }
+
+    private void initManagers() {
+        this.claimManager = new ClaimManager();
+        this.claimManager.loadClaims();
+        this.customManager = new CustomManager();
     }
 
     private void initListeners() {
-        customListener = new CustomListener(this);
-        registerListener(customListener);
+        this.customListener = new CustomListener(this);
+        registerListener(this.customListener);
         registerListener(new MenuListener(this));
     }
 
@@ -65,10 +78,10 @@ public final class Steadfast extends JavaPlugin {
     }
 
     public String getDatabaseType() {
-        return databaseType;
+        return this.databaseType;
     }
 
     public CustomListener getCustomListener() {
-        return customListener;
+        return this.customListener;
     }
 }

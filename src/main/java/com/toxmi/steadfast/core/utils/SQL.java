@@ -9,14 +9,12 @@ public enum SQL {
                 claimid TEXT PRIMARY KEY,
                 claimname TEXT NOT NULL UNIQUE,
                 claimpower INTEGER DEFAULT 0,
-                wealthPower INTEGER DEFAULT 0,
-                spawnerPower INTEGER DEFAULT 0,
-                artifactPower INTEGER DEFAULT 0,
                 claimchestlocation TEXT DEFAULT NULL,
                 shieldcharge INTEGER DEFAULT 0,
                 shieldstate TEXT CHECK (shieldstate IN ('INACTIVE', 'ACTIVE', 'CHARGING', 'ACTIVATING', 'RECHARGING')) DEFAULT 'INACTIVE',
                 shieldmode TEXT CHECK (shieldmode IN ('MANUAL', 'AUTO')) DEFAULT 'AUTO'
             );
+            
             CREATE TABLE IF NOT EXISTS claimchunks (
                 chunkkey TEXT PRIMARY KEY,
                 claimid TEXT NOT NULL REFERENCES claims(claimid) ON DELETE CASCADE
@@ -27,6 +25,12 @@ public enum SQL {
                 artifact TEXT NOT NULL,
                 slot INTEGER NOT NULL,
                 PRIMARY KEY (claimid, slot)
+            );
+            
+            CREATE TABLE IF NOT EXISTS claim_power (
+                claimid TEXT NOT NULL REFERENCES claims(claimid) ON DELETE CASCADE,
+                power INTEGER DEFAULT 0,
+                type TEXT CHECK (type IN ('SPAWNER', 'ARTIFACT', 'WEALTH')) NOT NULL
             );
             """,
             """
@@ -189,10 +193,16 @@ public enum SQL {
                 c.* ,
                 MAX(CASE WHEN ca.slot = 1 THEN ca.artifact END) AS artifact1,
                 MAX(CASE WHEN ca.slot = 2 THEN ca.artifact END) AS artifact2,
-                MAX(CASE WHEN ca.slot = 3 THEN ca.artifact END) AS artifact3
+                MAX(CASE WHEN ca.slot = 3 THEN ca.artifact END) AS artifact3,
+                MAX(CASE WHEN cp.type = 'ARTIFACT' THEN cp.power END) AS artifactpower,
+                MAX(CASE WHEN cp.type = 'SPAWNER' THEN cp.power END) AS spawnerpower,
+                MAX(CASE WHEN cp.type = 'WEALTH' THEN cp.power END) AS wealthpower
             FROM claims c
                 LEFT JOIN claim_artifacts ca
                     ON ca.claimid = c.claimid
+                LEFT JOIN claim_power cp
+                    ON cp.claimid = c.claimid
+            WHERE claimid = ?
             GROUP BY
                 c.claimid,
                 c.claimname;
@@ -248,14 +258,6 @@ public enum SQL {
             UPDATE claims SET claimchestlocation = ? WHERE claimid = ?;
             """
     ),
-    UPDATE_CLAIM_POWER(
-            """
-            UPDATE claims SET claimpower = ? WHERE claimid = ?;
-            """,
-            """
-            UPDATE claims SET claimpower = ? WHERE claimid = ?;
-            """
-    ),
     INSERT_CLAIM_CHUNK(
             """
             INSERT INTO claimchunks (chunkkey, claimid) VALUES (?, ?);
@@ -306,19 +308,52 @@ public enum SQL {
     ),
     SET_ARTIFACT (
             """
-            INSERT INTO claim_artifacts (artifact, slot, claimid)
+            INSERT INTO claim_artifacts (slot, artifact, claimid)
             VALUES (?, ?, ?)
             ON CONFLICT (claimid, slot)
                 DO UPDATE SET artifact = excluded.artifact;
             """,
             """
-            WITH params AS (
-                SELECT ?::text AS artifact, ?::text AS slot, ? AS id
-            )
             UPDATE claims
-                SET artifacts = jsonb_set(artifacts, ARRAY['slot' || (params.slot)::text], to_jsonb(params.artifact::text))
-            FROM params
-                WHERE claimid = params.id::text;
+                SET artifacts = jsonb_set(artifacts, ARRAY['slot' || ?::text], to_jsonb(?::text))
+                WHERE claimid = ?::text;
+            """
+    ),
+    SET_POWER_FROM_SOURCE (
+            """
+            INSERT INTO claim_power (type, power, claimid)
+            VALUES (?, ?, ?)
+            ON CONFLICT (claimid, type)
+                DO UPDATE SET power = excluded.power;
+            """,
+            """
+            UPDATE claims
+                SET claimpower = jsonb_set(claimpower, ARRAY[?::text], to_jsonb(?))
+                WHERE claimid = ?::text;
+            """
+    ),
+    SET_TOTAL_POWER (
+            """
+            UPDATE claims SET claimpower = ? WHERE claimid = ?;
+            """,
+            """
+            UPDATE claims SET claimpower = jsonb_set(claimpower, '{total}', to_jsonb(?)) WHERE claimid = ?;
+            """
+    ),
+    SET_SHIELD_CHARGE (
+            """
+            UPDATE claims SET shieldcharge = ? WHERE claimid = ?;
+            """,
+            """
+            UPDATE claims SET shield = jsonb_set(shield, '{charge}', to_jsonb(?)) WHERE claimid = ?;
+            """
+    ),
+    DELETE_CLAIM (
+            """
+            DELETE FROM claims WHERE claimid = ?;
+            """,
+            """
+            DELETE FROM claims WHERE claimid = ?;
             """
     );
 

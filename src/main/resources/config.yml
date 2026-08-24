@@ -1,6 +1,7 @@
 # SSL Support is required for PostgreSQL
 database:
   enabled: true
+  database-version: "1"
   type: SQLite # Options: SQLite and PostgreSQL
   host: "localhost" # No need to change these if you use SQLite
   port: 5432

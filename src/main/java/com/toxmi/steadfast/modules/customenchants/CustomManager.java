@@ -22,6 +22,7 @@ public class CustomManager {
     private FileConfiguration config;
 
     public CustomManager() {
+        instance = this;
         registerCustoms();
     }
 

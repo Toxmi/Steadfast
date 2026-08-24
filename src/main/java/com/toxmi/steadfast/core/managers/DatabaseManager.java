@@ -19,7 +19,7 @@ public class DatabaseManager {
 
     private Connection connection;
     private RowSetFactory factory;
-    private String dataBaseType;
+    private final String dataBaseType;
 
 
     public DatabaseManager(String dataBaseType) {
@@ -38,7 +38,7 @@ public class DatabaseManager {
 
     public void connect() {
 
-        FileConfiguration config = Steadfast.get().getConfig();
+        FileConfiguration config = plugin.getConfig();
         String url;
 
         if (dataBaseType.equalsIgnoreCase("sqlite")) {
@@ -79,7 +79,9 @@ public class DatabaseManager {
     public void initTables() {
         try {
             try (Statement st = connection().createStatement()) {
-
+                st.execute(SQL.CREATE_CLAIM_TABLE.toString());
+                st.execute(SQL.CREATE_PLAYER_TABLE.toString());
+                st.execute(SQL.CREATE_PLAYER_STATS_TABLE.toString());
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize tables", e);
