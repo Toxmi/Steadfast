@@ -1,5 +1,7 @@
 package com.toxmi.steadfast.modules.customenchants.customs;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.toxmi.steadfast.modules.customenchants.CustomEnchant;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -8,13 +10,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class FirstStrike extends CustomEnchant {
-    private final Map<UUID, Long> cooldown = new ConcurrentHashMap<>();
+    private final Cache<UUID, Object> cooldowns = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(5))
+            .build();
 
     @Override
     public void useAbility(@Nullable Player player, @Nullable Event event) {
@@ -24,16 +26,13 @@ public class FirstStrike extends CustomEnchant {
         Entity victim = e.getEntity();
         player.sendMessage("First Strike!");
         // Check if the victim has been struck by another first strike in the last X seconds
-        if (cooldown.containsKey(victim.getUniqueId())) {
-            long time = cooldown.get(victim.getUniqueId());
-            if (time + cm.getVar2("firststrike") * 1000 < System.currentTimeMillis()) return;
-        }
+        if (cooldowns.getIfPresent(victim.getUniqueId()) != null) return;
 
         // Increase damage by X
         e.setDamage(e.getDamage() * cm.getVar1("firststrike"));
 
         // Add cooldowns to victim and the user
-        cooldown.put(victim.getUniqueId(), System.currentTimeMillis());
+        cooldowns.put(victim.getUniqueId(), new Object());
         cm.addCooldown("firststrike", player.getUniqueId());
         victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_TRIDENT_THUNDER, 1.0f, 1.0f);
     }
