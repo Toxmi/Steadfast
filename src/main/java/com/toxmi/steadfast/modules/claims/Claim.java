@@ -8,6 +8,7 @@ import com.toxmi.steadfast.modules.claims.enums.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
@@ -178,6 +179,15 @@ public class Claim {
 
     public void setClaimChestMaxHealth(double claimChestMaxHealth) {
         this.claimChestMaxHealth = claimChestMaxHealth;
+    }
+
+    public boolean damageClaimChest(double damage) {
+        claimChestHealth -= damage;
+        return claimChestHealth <= 0;
+    }
+
+    public boolean isClaimChest(Block block) {
+        return block.getLocation().equals(claimChestLoc);
     }
 
     public boolean isMember(UUID player) {

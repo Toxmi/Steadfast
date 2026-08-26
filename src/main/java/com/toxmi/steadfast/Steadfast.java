@@ -5,6 +5,7 @@ import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
+import com.toxmi.steadfast.modules.claims.listeners.ClaimProtectionListener;
 import com.toxmi.steadfast.modules.customenchants.CustomListener;
 import com.toxmi.steadfast.modules.customenchants.CustomManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -65,6 +66,7 @@ public final class Steadfast extends JavaPlugin {
         this.customListener = new CustomListener(this);
         registerListener(this.customListener);
         registerListener(new MenuListener(this));
+        registerListener(new ClaimProtectionListener());
     }
 
     private void registerListener(Listener listener) {

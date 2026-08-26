@@ -5,6 +5,7 @@ import com.toxmi.steadfast.core.utils.SQL;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
@@ -66,6 +67,16 @@ public class ClaimManager {
         return claims.values().stream().filter(claim -> claim.isMember(player)).findFirst().orElse(null);
     }
 
+    public Claim getClaim(Player player) {
+        return getClaimByPlayer(player.getUniqueId());
+    }
+
+    public boolean isAllowedToUse(Player player, Location loc) {
+        if (player.hasPermission("steadfast.bypassclaim")) return true;
+        Claim claim = getClaim(loc);
+        return claim == null || claim.isMember(player);
+    }
+
     public int getClaimRank(Claim claim) {
         List<Claim> sorted = claims.values().stream()
                 .sorted(Comparator.comparingInt(Claim::getPower).reversed())
@@ -87,5 +98,21 @@ public class ClaimManager {
 
     public void saveClaims() {
         claims.values().forEach(Claim::saveClaim);
+    }
+
+    public void teleportOutOfClaim(Player user) {
+        Random random = new Random();
+        World world = user.getWorld();
+        for (int i = 0; i < 32; ++i) {
+            double x = user.getX() + ( random.nextDouble() - (double) 0.5F) * 50.0;
+            double z = user.getZ() + (random.nextDouble() - (double) 0.5F) * 50.0;
+            double y = Math.clamp(user.getY() + (double) (random.nextInt(16) - 8), world.getSeaLevel(), world.getHighestBlockYAt((int) x, (int) z));
+
+            Location loc = new Location(world, x, y, z);
+
+            if (!world.getWorldBorder().isInside(loc)) continue;
+            if (getClaim(loc) == null) continue;
+            user.teleportAsync(loc);
+        }
     }
 }
