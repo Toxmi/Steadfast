@@ -29,7 +29,7 @@ public class TeleportUtil {
         }
         for (int i = 0; i < 16; ++i) {
             double x = user.getX() + (user.getRandom().nextDouble() - (double) 0.5F) * radius;
-            double y = Mth.clamp(user.getY() + (double) (user.getRandom().nextInt(16) - 8), world.getMinBuildHeight(), (world.getMinBuildHeight() + (world).getLogicalHeight() - 1));
+            double y = Mth.clamp(user.getY() + (double) (user.getRandom().nextInt(16) - 8), world.getMinY(), (world.getMinY() + (world).getLogicalHeight() - 1));
             double z = user.getZ() + (user.getRandom().nextDouble() - (double) 0.5F) * radius;
 
             Vec3 vec3D = user.position();
