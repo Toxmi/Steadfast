@@ -1,13 +1,18 @@
 package com.toxmi.steadfast.modules.claims;
 
+import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.SQL;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -15,15 +20,25 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClaimManager {
     private static ClaimManager instance;
+    private final Steadfast plugin;
     private final Scheduler sch;
     private final DatabaseManager db;
     private final Map<UUID, Claim> claims = new ConcurrentHashMap<>();
+    private final Map<ChunkPos, Claim> chunkIndex = new ConcurrentHashMap<>();
+    private File file;
+    private FileConfiguration config;
+
+
+    private int CLAIM_DISTANCE;
 
 
     public ClaimManager() {
         instance = this;
+        this.plugin = Steadfast.get();
         this.sch = Scheduler.get();
         this.db = DatabaseManager.get();
+        loadConfig();
+        load();
     }
 
     public synchronized static ClaimManager get() {
@@ -31,6 +46,24 @@ public class ClaimManager {
             instance = new ClaimManager();
         }
         return instance;
+    }
+
+    public void loadConfig() {
+        file = new File(plugin.getDataFolder(), "claims.yml");
+
+        if (!file.exists()) {
+            plugin.saveResource("claims.yml", false);
+        }
+        config = YamlConfiguration.loadConfiguration(file);
+    }
+
+    public void load() {
+        CLAIM_DISTANCE = config.getInt("claim-distance");
+    }
+
+    public void reload() {
+        loadConfig();
+        load();
     }
 
     public void loadClaims() {
@@ -56,11 +89,27 @@ public class ClaimManager {
     }
 
     public Claim getClaim(Chunk chunk) {
-        return claims.values().stream().filter(claim -> claim.ownsChunk(chunk)).findFirst().orElse(null);
+        return chunkIndex.get(ChunkPos.of(chunk));
     }
 
     public Claim getClaim(Location location) {
-        return claims.values().stream().filter(claim -> claim.ownsChunk(location)).findFirst().orElse(null);
+        return chunkIndex.get(ChunkPos.of(location));
+    }
+
+    public Claim getClaim(ChunkPos pos) {
+        return chunkIndex.get(pos);
+    }
+
+    void indexChunk(ChunkPos pos, Claim claim) {
+        chunkIndex.put(pos, claim);
+    }
+
+    void unindexChunk(ChunkPos pos) {
+        chunkIndex.remove(pos);
+    }
+
+    void unindexClaim(Claim claim) {
+        chunkIndex.values().removeIf(indexed -> indexed == claim);
     }
 
     public Claim getClaimByPlayer(UUID player) {
@@ -88,12 +137,16 @@ public class ClaimManager {
     }
 
     public void deleteClaim(UUID claimID) {
-        claims.remove(claimID).deleteClaim();
+        Claim claim = claims.remove(claimID);
+        if (claim == null) return;
+        unindexClaim(claim);
+        claim.deleteClaim();
     }
 
-    public void addClaim(Player owner, Location claimChestLocation) {
+    public Claim createClaim(Player owner, Location claimChestLocation) {
         Claim claim = new Claim(owner, claimChestLocation);
         claims.put(claim.getClaimID(), claim);
+        return claim;
     }
 
     public void saveClaims() {
@@ -114,5 +167,29 @@ public class ClaimManager {
             if (getClaim(loc) == null) continue;
             user.teleportAsync(loc);
         }
+    }
+
+    public boolean isTooCloseToEnemyClaim(Chunk chunk, Claim claim) {
+        return isTooCloseToEnemyClaim(ChunkPos.of(chunk), claim);
+    }
+
+    public boolean isTooCloseToEnemyClaim(Location loc, Claim claim) {
+        return isTooCloseToEnemyClaim(ChunkPos.of(loc), claim);
+    }
+
+    public boolean isTooCloseToEnemyClaim(ChunkPos pos, @Nullable Claim claim) {
+        for (int x = -CLAIM_DISTANCE; x <= CLAIM_DISTANCE; x++) {
+            for (int z = -CLAIM_DISTANCE; z <= CLAIM_DISTANCE; z++) {
+                Claim nearbyClaim = chunkIndex.get(new ChunkPos(pos.world(), pos.x() + x, pos.z() + z));
+                if (nearbyClaim != null && nearbyClaim != claim) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public FileConfiguration getConfig() {
+        return config;
     }
 }

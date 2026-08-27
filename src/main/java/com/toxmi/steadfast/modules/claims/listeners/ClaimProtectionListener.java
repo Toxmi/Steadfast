@@ -22,6 +22,8 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import static com.toxmi.steadfast.core.utils.Str.cm;
+
 public class ClaimProtectionListener implements Listener {
     private final ClaimManager claimManager;
 
@@ -47,7 +49,7 @@ public class ClaimProtectionListener implements Listener {
 
         if (claim.isInCombat() && block.getType().equals(Material.SPAWNER)) {
             event.setCancelled(true);
-            player.sendMessage(Component.text("You cannot break spawners in combat!"));
+            player.sendMessage(cm("<Gray>▪ <Red>You cannot break spawners in combat!"));
             return;
         }
 

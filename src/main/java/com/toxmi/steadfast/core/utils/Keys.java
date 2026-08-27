@@ -13,11 +13,16 @@ public class Keys {
     // Claims
 
     public static NamespacedKey claimKey = new NamespacedKey(plugin, "claim");
+    public static NamespacedKey claimHoloKey = new NamespacedKey(plugin, "claim_holo");
 
     // Items
 
     public static NamespacedKey itemKey = new NamespacedKey(plugin, "item");
 
+
+    // Misc
+
+    public static NamespacedKey holoIndexKey = new NamespacedKey(plugin, "line_index");
 
     public static boolean hasKey(ItemStack item, NamespacedKey key) {
         return item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.STRING);

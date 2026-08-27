@@ -3,14 +3,13 @@ package com.toxmi.steadfast.modules.claims.menus;
 import com.toxmi.steadfast.core.menu.Button;
 import com.toxmi.steadfast.core.menu.Menu;
 import com.toxmi.steadfast.core.utils.TimeFormatter;
-import com.toxmi.steadfast.modules.claims.enums.Artifact;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
+import com.toxmi.steadfast.modules.claims.enums.Artifact;
 import com.toxmi.steadfast.modules.claims.enums.ClaimRole;
 import com.toxmi.steadfast.modules.claims.enums.PowerSource;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,10 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.toxmi.steadfast.core.utils.Str.cc;
+import static com.toxmi.steadfast.core.utils.Str.cm;
+
 public class ClaimMenu extends Menu {
 
     private final Claim claim;
-    private final ClaimManager cm = ClaimManager.get();
+    private final ClaimManager claimManager = ClaimManager.get();
 
     public ClaimMenu(Claim claim) {
         this.claim = claim;
@@ -41,9 +43,9 @@ public class ClaimMenu extends Menu {
             @Override
             public ItemStack getItem(Player player) {
                 return ib.customItem(Material.SHIELD)
-                        .displayName(Component.text("Manage Shield").color(NamedTextColor.AQUA))
+                        .displayName(cc("Manage Shield").color(NamedTextColor.AQUA))
                         .lore(
-                                MiniMessage.miniMessage().deserialize(
+                                cm(
                                         "<!i><br>" +
                                                 "<White>Info:<br>" +
                                                 "<Gray>▪ </Gray>Current Charge: <Aqua><time></Aqua> <br>" +
@@ -51,10 +53,10 @@ public class ClaimMenu extends Menu {
                                                 "<Gray>▪ </Gray>Status: <color:<statuscolor>><status><br>" +
                                                 "<br>" +
                                                 "<Aqua>➡ Click to manage your shield",
-                                        Placeholder.component("time", Component.text(TimeFormatter.getFormattedTime(claim.getShieldCharge()))),
-                                        Placeholder.component("mode", Component.text(claim.getShieldMode().toString())),
-                                        Placeholder.component("statuscolor", Component.text(claim.getShieldState().getColor())),
-                                        Placeholder.component("status", Component.text(claim.getShieldState().toString()))
+                                        Placeholder.component("time", cc(TimeFormatter.getFormattedTime(claim.getShieldCharge()))),
+                                        Placeholder.component("mode", cc(claim.getShieldMode().toString())),
+                                        Placeholder.component("statuscolor", cc(claim.getShieldState().getColor())),
+                                        Placeholder.component("status", cc(claim.getShieldState().toString()))
                                 )
                         ).build();
             }
@@ -65,9 +67,9 @@ public class ClaimMenu extends Menu {
             @Override
             public ItemStack getItem(Player player) {
                 return ib.customItem(Material.HOPPER)
-                        .displayName(Component.text("Manage Claim").color(NamedTextColor.YELLOW))
+                        .displayName(cc("Manage Claim").color(NamedTextColor.YELLOW))
                         .lore(
-                                MiniMessage.miniMessage().deserialize(
+                                cm(
                                         "<!i><br>" +
                                                 "<White>General:<br>" +
                                                 "<Gray>▪ </Gray>Claims: <Green><claimcount>/49</Green><br>" +
@@ -77,13 +79,13 @@ public class ClaimMenu extends Menu {
                                                 "<Gray>▪ </Gray>Slot 2: " + (claim.getArtifacts().get(2) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(2))) + "<br>" +
                                                 "<Gray>▪ </Gray>Slot 3: " + (claim.getArtifacts().get(3) == null ? "<Red>Locked</Red>" : getArtifactString(claim.getArtifacts().get(3))) + "<br>" +
                                                 "<br>" +
-                                                String.format("Power: <Dark_red>%s</Dark_red> <Dark_gray>(#%s)</Dark_gray> <br>", claim.getPower(), cm.getClaimRank(claim)) +
+                                                String.format("Power: <Dark_red>%s</Dark_red> <Dark_gray>(#%s)</Dark_gray> <br>", claim.getPower(), claimManager.getClaimRank(claim)) +
                                                 String.format("<Gray>▪ </Gray>Spawners: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.SPAWNER)) +
                                                 String.format("<Gray>▪ </Gray>Artifacts: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.ARTIFACT)) +
                                                 String.format("<Gray>▪ </Gray>Wealth: <Dark_red>+%s</Dark_red><br>", claim.getPowerFromASource(PowerSource.WEALTH)) +
                                                 "<br>" +
                                                 "<Yellow>➡ Click to manage your team",
-                                        Placeholder.component("claimcount", Component.text(claim.getChunkCount()))
+                                        Placeholder.component("claimcount", cc(claim.getChunkCount()))
                                 )
                         )
                         .build();
@@ -122,8 +124,8 @@ public class ClaimMenu extends Menu {
                 });
                 ref.lore = ref.lore + "<Green>➡ Click to manage your members</Green>";
                 return ib.customItem(Material.BOOK)
-                        .displayName(Component.text("Manage Members").color(NamedTextColor.GREEN))
-                        .lore(MiniMessage.miniMessage().deserialize(ref.lore)
+                        .displayName(cm("<Green>Manage Members</Green>"))
+                        .lore(cm(ref.lore)
                         ).build();
             }
         });
@@ -131,7 +133,7 @@ public class ClaimMenu extends Menu {
 
     @Override
     public Component getTitle(@Nullable Player player) {
-        return Component.text("Manage " + claim.getClaimName());
+        return cc("Manage " + claim.getClaimName());
     }
 
     @Override

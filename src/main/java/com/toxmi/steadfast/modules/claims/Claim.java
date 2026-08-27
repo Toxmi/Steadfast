@@ -22,7 +22,7 @@ public class Claim {
     private final DatabaseManager db;
 
     private final Map<UUID, ClaimRole> MEMBERS = new ConcurrentHashMap<>();
-    private final Set<String> CHUNKS = Collections.synchronizedSet(new HashSet<>());
+    private final Set<ChunkPos> CHUNKS = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Long> INVITES = new ConcurrentHashMap<>();
     private final Map<Integer, Artifact> artifacts = new ConcurrentHashMap<>();
 
@@ -55,7 +55,7 @@ public class Claim {
         this.claimName = String.format("%s's Claim", player.getName());
         this.claimChestLoc = claimChestLocation;
         initClaim(claimID, claimName, claimChestLocation);
-        addChunk(claimChestLocation.getChunk());
+        addChunk(ChunkPos.of(claimChestLocation));
     }
 
     public void initClaim(UUID claimID, String claimName, Location claimChestLoc) {
@@ -100,9 +100,11 @@ public class Claim {
                 throw new RuntimeException("Failed to load claim", e);
             }
             try (ResultSet rs = db.executeResultStatement(SQL.GET_CLAIM_CHUNKS, this.toString())) {
+                ClaimManager claimManager = ClaimManager.get();
                 while (rs.next()) {
-                    String chunkKey = rs.getString("chunkkey");
-                    this.CHUNKS.add(chunkKey);
+                    ChunkPos pos = ChunkPos.fromKey(rs.getString("chunkkey"));
+                    this.CHUNKS.add(pos);
+                    claimManager.indexChunk(pos, this);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to load claim chunks", e);
@@ -125,28 +127,16 @@ public class Claim {
         });
     }
 
-    public String getChunkKey(Chunk chunk) {
-        return String.format("%d:%d:%s", chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
-    }
-
-    public String getChunkKey(Location location) {
-        Chunk chunk = location.getChunk();
-        return String.format("%d:%d:%s", chunk.getX(), chunk.getZ(), chunk.getWorld().getName());
-    }
-
-    public Chunk getChunk(String chunkKey) {
-        int x = Integer.parseInt(chunkKey.split(":")[0]);
-        int z = Integer.parseInt(chunkKey.split(":")[1]);
-        World world = plugin.getServer().getWorld(chunkKey.split(":")[2]);
-        return world.getChunkAt(x, z);
-    }
-
     public boolean ownsChunk(Chunk chunk) {
-        return CHUNKS.contains(getChunkKey(chunk));
+        return CHUNKS.contains(ChunkPos.of(chunk));
     }
 
     public boolean ownsChunk(Location location) {
-        return CHUNKS.contains(getChunkKey(location));
+        return CHUNKS.contains(ChunkPos.of(location));
+    }
+
+    public boolean ownsChunk(ChunkPos pos) {
+        return CHUNKS.contains(pos);
     }
 
     public boolean isInCombat() {
@@ -361,29 +351,31 @@ public class Claim {
     }
 
     public boolean isMainChunk(Chunk chunk) {
-        return claimChestLoc.getChunk().equals(chunk);
+        return ChunkPos.of(claimChestLoc).equals(ChunkPos.of(chunk));
     }
 
     public void addChunk(Chunk chunk) {
-        addChunk(getChunkKey(chunk));
+        addChunk(ChunkPos.of(chunk));
     }
 
-    public void addChunk(String chunkKey) {
-        CHUNKS.add(chunkKey);
+    public void addChunk(ChunkPos pos) {
+        CHUNKS.add(pos);
+        ClaimManager.get().indexChunk(pos, this);
         sch.async(() -> {
-            db.executeUpdate(SQL.INSERT_CLAIM_CHUNK, chunkKey, this.toString());
+            db.executeUpdate(SQL.INSERT_CLAIM_CHUNK, pos.toKey(), this.toString());
         });
     }
 
-    public void removeChunk(String chunkKey) {
-        CHUNKS.remove(chunkKey);
+    public void removeChunk(ChunkPos pos) {
+        CHUNKS.remove(pos);
+        ClaimManager.get().unindexChunk(pos);
         sch.async(() -> {
-            db.executeUpdate(SQL.DELETE_CLAIM_CHUNK, chunkKey, this.toString());
+            db.executeUpdate(SQL.DELETE_CLAIM_CHUNK, pos.toKey(), this.toString());
         });
     }
 
     public void removeChunk(Chunk chunk) {
-        removeChunk(getChunkKey(chunk));
+        removeChunk(ChunkPos.of(chunk));
     }
 
     @Override

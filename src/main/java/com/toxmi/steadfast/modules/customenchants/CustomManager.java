@@ -51,6 +51,12 @@ public class CustomManager {
         }
     }
 
+    public void reload() {
+        customs.clear();
+        config = YamlConfiguration.loadConfiguration(file);
+        load();
+    }
+
     public static CustomManager get() {
         if (instance == null) {
             instance = new CustomManager();

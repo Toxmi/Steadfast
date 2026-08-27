@@ -5,6 +5,7 @@ import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
+import com.toxmi.steadfast.modules.claims.listeners.ClaimChestListener;
 import com.toxmi.steadfast.modules.claims.listeners.ClaimProtectionListener;
 import com.toxmi.steadfast.modules.customenchants.CustomListener;
 import com.toxmi.steadfast.modules.customenchants.CustomManager;
@@ -21,6 +22,7 @@ public final class Steadfast extends JavaPlugin {
     private DatabaseManager dbm;
     private String databaseType;
     private ClaimManager claimManager;
+    private ClaimChestListener claimChestListener;
 
     private FileConfiguration config;
 
@@ -32,6 +34,7 @@ public final class Steadfast extends JavaPlugin {
     public void onEnable() {
         instance = this;
         saveResource("customs.yml", false);
+        saveResource("claims.yml", false);
         // Plugin startup logic
         this.scheduler = new Scheduler(this);
         this.config = getConfig();
@@ -66,7 +69,8 @@ public final class Steadfast extends JavaPlugin {
         this.customListener = new CustomListener(this);
         registerListener(this.customListener);
         registerListener(new MenuListener(this));
-        registerListener(new ClaimProtectionListener());
+        this.claimChestListener = new ClaimChestListener();
+        registerListener(claimChestListener);
     }
 
     private void registerListener(Listener listener) {
@@ -85,5 +89,12 @@ public final class Steadfast extends JavaPlugin {
 
     public CustomListener getCustomListener() {
         return this.customListener;
+    }
+
+    public void reload() {
+        reloadConfig();
+        customManager.reload();
+        claimManager.reload();
+        claimChestListener.reload();
     }
 }
