@@ -4,6 +4,10 @@ import com.toxmi.steadfast.core.utils.Keys;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -44,42 +48,47 @@ public class ClaimChestListener implements Listener {
 
         // Check if the player can make claims in this dimension
         if (allowedWorlds.contains(player.getWorld().getName())) {
-            player.sendMessage(cm("<!i><Gray>▪ <Red>You cannot place a Claim in this dimension."));
+            player.sendMessage(cm("<Gray>▪ <Red>You cannot place a Claim in this dimension."));
             event.setCancelled(true);
             return;
         }
 
         // Check if the player is already in a claim
         if (claimManager.getClaim(player) != null) {
-            player.sendMessage(cm("<!i><Gray>▪ <Red>You are already in a Claim team."));
+            player.sendMessage(cm("<Gray>▪ <Red>You are already in a Claim team."));
             event.setCancelled(true);
             return;
         }
 
         // Check if the position is within x chunks of an enemy claim
         if (claimManager.isTooCloseToEnemyClaim(block.getLocation(),null)) {
-            player.sendMessage(cm("<!i><Gray>▪ <Red>You cannot place a Claim chest too close to an enemy Claim."));
+            player.sendMessage(cm("<Gray>▪ <Red>You cannot place a Claim chest too close to an enemy Claim."));
             event.setCancelled(true);
             return;
         }
 
         // Make sure there is an air block above the chest
         if (!block.getRelative(0,1,0).getType().equals(Material.AIR)) {
-            player.sendMessage(cm("<!i><Gray>▪ <Red>Clear the area above the Claim chest."));
+            player.sendMessage(cm("<Gray>▪ <Red>Clear the area above the Claim chest."));
             event.setCancelled(true);
             return;
         }
 
         // Create the Claim if all previous checks passed
         Claim claim = claimManager.createClaim(player, block.getLocation());
-        createHolo(block.getLocation().add(0,0.5,0),Keys.claimHoloKey, claim.getClaimID().toString(),
-                List.of(
-                        cc(claim.getClaimName()),
-                        cm("<!i><White>")
-                )
-                );
+        createClaimHolo(claim, block.getLocation());
     }
 
-
+    private void createClaimHolo(Claim claim, Location location) {
+        createHolo(location.add(0,0.5,0),Keys.claimHoloKey, claim.getClaimID().toString(),
+                List.of(
+                        cc(claim.getClaimName()).color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD,true),
+                        cc(""),
+                        cm("<White>Shield Charge: <Yellow><time>",
+                                Placeholder.component("time", cc(claim.getShieldTimeFormatted()))
+                                )
+                )
+        );
+    }
 
 }

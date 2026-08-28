@@ -1,5 +1,6 @@
 package com.toxmi.steadfast.core.commands;
 
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.toxmi.steadfast.Steadfast;
@@ -12,7 +13,8 @@ public abstract class BaseCommand {
 
     public abstract LiteralCommandNode<CommandSourceStack> node();
 
-    protected static Player requirePlayer(CommandSourceStack source) throws CommandSyntaxException {
+    protected static Player requirePlayer(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
         if (source.getExecutor() instanceof Player p) return p;
         source.getSender().sendMessage("Players only.");
         throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().create();

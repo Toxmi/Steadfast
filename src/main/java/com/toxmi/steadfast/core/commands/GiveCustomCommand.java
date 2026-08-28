@@ -20,7 +20,7 @@ public class GiveCustomCommand extends BaseCommand {
     public LiteralCommandNode<CommandSourceStack> node() {
         return Commands.literal("givecustom")
                 .executes(ctx -> {
-                    Player player = requirePlayer(ctx.getSource());
+                    Player player = requirePlayer(ctx);
                     player.sendMessage(Component.text("Invalid syntax").color(NamedTextColor.RED));
                     return Command.SINGLE_SUCCESS;
                 })
@@ -32,7 +32,7 @@ public class GiveCustomCommand extends BaseCommand {
                             return builder.buildFuture();
                         })
                         .executes(ctx -> {
-                            Player player = requirePlayer(ctx.getSource());
+                            Player player = requirePlayer(ctx);
                             String custom = StringArgumentType.getString(ctx, "custom");
                             if (!plugin.getCustomListener().getCustomsList().contains(custom)) {
                                 player.sendMessage(Component.text("Custom not found").color(NamedTextColor.RED));

@@ -46,14 +46,14 @@ public class ClaimMenu extends Menu {
                         .displayName(cc("Manage Shield").color(NamedTextColor.AQUA))
                         .lore(
                                 cm(
-                                        "<!i><br>" +
+                                        "<br>" +
                                                 "<White>Info:<br>" +
                                                 "<Gray>▪ </Gray>Current Charge: <Aqua><time></Aqua> <br>" +
                                                 "<Gray>▪ </Gray>Mode: <Aqua><mode></Aqua> <br>" +
                                                 "<Gray>▪ </Gray>Status: <color:<statuscolor>><status><br>" +
                                                 "<br>" +
                                                 "<Aqua>➡ Click to manage your shield",
-                                        Placeholder.component("time", cc(TimeFormatter.getFormattedTime(claim.getShieldCharge()))),
+                                        Placeholder.component("time", cc(claim.getShieldTimeFormatted())),
                                         Placeholder.component("mode", cc(claim.getShieldMode().toString())),
                                         Placeholder.component("statuscolor", cc(claim.getShieldState().getColor())),
                                         Placeholder.component("status", cc(claim.getShieldState().toString()))
@@ -70,7 +70,7 @@ public class ClaimMenu extends Menu {
                         .displayName(cc("Manage Claim").color(NamedTextColor.YELLOW))
                         .lore(
                                 cm(
-                                        "<!i><br>" +
+                                        "<br>" +
                                                 "<White>General:<br>" +
                                                 "<Gray>▪ </Gray>Claims: <Green><claimcount>/49</Green><br>" +
                                                 "<br>" +
@@ -107,7 +107,7 @@ public class ClaimMenu extends Menu {
             @Override
             public ItemStack getItem(Player player) {
                 var ref = new Object() {
-                    String lore = "<!i><br>" +
+                    String lore = "<br>" +
                             String.format("<White>Members: <Gray>(%s/14)</Gray><br>", claim.getMembers().size()) +
                             String.format("<Gray>▪ <Gold>Leader</Gold>: </Gray>%s<br>", plugin.getServer().getOfflinePlayer(claim.getOwner()).getName()) +
                             String.format("<Gray>▪ <Yellow>Co-Leaders</Yellow>: </Gray>%s<br>", coLeaders.isEmpty() ? "<Red>None</Red>" : String.join(", ", coLeaders)) +

@@ -10,11 +10,11 @@ public class Str {
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.legacySection();
 
     public static Component cm(String text) {
-        return MiniMessage.miniMessage().deserialize(text);
+        return MiniMessage.miniMessage().deserialize("<!i>" + text);
     }
 
     public static Component cm(String text, TagResolver... placeholders) {
-        return MiniMessage.miniMessage().deserialize(text, placeholders);
+        return MiniMessage.miniMessage().deserialize("<!i>" + text, placeholders);
     }
 
     public static Component cc(String text) {

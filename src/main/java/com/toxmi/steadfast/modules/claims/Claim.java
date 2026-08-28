@@ -4,6 +4,7 @@ import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.SQL;
 import com.toxmi.steadfast.core.utils.Scheduler;
+import com.toxmi.steadfast.core.utils.TimeFormatter;
 import com.toxmi.steadfast.modules.claims.enums.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -262,6 +263,10 @@ public class Claim {
 
     public int getShieldCharge() {
         return shieldCharge;
+    }
+
+    public String getShieldTimeFormatted() {
+        return TimeFormatter.getFormattedTime(shieldCharge);
     }
 
     public void setShieldCharge(int shieldCharge) {
