@@ -11,7 +11,6 @@ import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.enums.ClaimRole;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.dialog.Dialog;
 import io.papermc.paper.registry.data.dialog.ActionButton;
 import io.papermc.paper.registry.data.dialog.DialogBase;
@@ -31,7 +30,6 @@ import org.geysermc.cumulus.form.CustomForm;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -202,6 +200,7 @@ public class ClaimCommand extends BaseCommand {
                 .then(Commands.literal("focus")
                         .executes(ctx -> {
                             Player player = requirePlayer(ctx);
+                            // TODO - TEAM FOCUS IMPLEMENTATION
                             return Command.SINGLE_SUCCESS;
                         })
                 )
@@ -258,6 +257,83 @@ public class ClaimCommand extends BaseCommand {
                                 })
                         )
                 )
+                .then(Commands.literal("join")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim join <teamName></White>"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                        .then(Commands.argument("teamname", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    Player player = requirePlayer(ctx);
+                                    handleJoin(player, StringArgumentType.getString(ctx, "teamname"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("kick")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim kick <player></White>"));
+                            return Command.SINGLE_SUCCESS;
+                        }).then(Commands.argument("player", StringArgumentType.word())
+                                .suggests((ctx, builder) -> {
+                                    plugin.getServer().getOnlinePlayers().stream()
+                                            .filter(p -> !isVanished(p) && p.getName().toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                            .forEach(e -> builder.suggest(e.getName()));
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    Player player = requirePlayer(ctx);
+                                    String target = StringArgumentType.getString(ctx, "player");
+                                    OfflinePlayer targetPlayer = plugin.getServer().getOfflinePlayer(target);
+                                    if (!targetPlayer.hasPlayedBefore()) {
+                                        player.sendMessage(cm("<Gray>▪ </Gray><White>Player <Red><target></Red> not found!", Placeholder.component("target", cc(target))));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
+                                    handleKick(player, targetPlayer);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("leader")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim leader <player></White>"));
+                            return Command.SINGLE_SUCCESS;
+                        }).then(Commands.argument("player", StringArgumentType.word())
+                                .suggests((ctx, builder) -> {
+                                    plugin.getServer().getOnlinePlayers().stream()
+                                            .filter(p -> !isVanished(p) && p.getName().toLowerCase().startsWith(builder.getRemainingLowerCase()))
+                                            .forEach(e -> builder.suggest(e.getName()));
+                                    return builder.buildFuture();
+                                })
+                                .executes(ctx -> {
+                                    Player player = requirePlayer(ctx);
+                                    String target = StringArgumentType.getString(ctx, "player");
+                                    OfflinePlayer targetPlayer = plugin.getServer().getOfflinePlayer(target);
+                                    if (!targetPlayer.hasPlayedBefore()) {
+                                        player.sendMessage(cm("<Gray>▪ </Gray><White>Player <Red><target></Red> not found!", Placeholder.component("target", cc(target))));
+                                        return Command.SINGLE_SUCCESS;
+                                    }
+                                    handleLeader(player, targetPlayer);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("leave")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            handleLeave(player);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("permissions")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
                 .then(Commands.literal("promote")
                         .executes(ctx -> {
                             Player player = requirePlayer(ctx);
@@ -275,6 +351,48 @@ public class ClaimCommand extends BaseCommand {
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
+                )
+                .then(Commands.literal("rename")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim rename <name></White>"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                        .then(Commands.argument("name", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    Player player = requirePlayer(ctx);
+                                    handleRename(player, StringArgumentType.getString(ctx, "name"));
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .then(Commands.literal("teleport")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            // TODO - HOMES IMPLEMENTATION
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("top")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            // TODO - TEAM TOP IMPLEMENTATION
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("unally")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            // TODO - ALLIANCES IMPLEMENTATION
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(Commands.literal("unfocus")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            // TODO - TEAM FOCUS IMPLEMENTATION
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
                 .then(Commands.literal("uninvite")
                         .executes(ctx -> {
@@ -456,9 +574,7 @@ public class ClaimCommand extends BaseCommand {
             CustomForm form = CustomForm.builder()
                     .title("Disband claim?")
                     .label("By clicking confirm your claim will be disbanded")
-                    .validResultHandler(response -> {
-                        claimManager.disbandClaim(claim);
-                    })
+                    .validResultHandler(response -> claimManager.disbandClaim(claim))
                     .closedOrInvalidResultHandler(() -> {
                     })
                     .build();
@@ -527,22 +643,22 @@ public class ClaimCommand extends BaseCommand {
         Location loc = claim.getClaimChestLoc();
         player.sendMessage(cm(
                 """
-                <br>
-                <Green><b><claimname></b></Green><br>
-                <br>
-                <Yellow><b>Info:</b></Yellow><br>
-                <Gray>▪ </Gray><White>Claim Chest: <Yellow><xcoord><Gray>, </Gray><ycoord><Gray>, </Gray><zcoord></Yellow></White><br>
-                <Gray>▪ </Gray><White>Claims: </White><Yellow><claimcount></Yellow><br>
-                <Gray>▪ </Gray><White>Power: </White><Yellow><power></Yellow><Dark_Gray>{#<rank>}</Dark_Gray><br>
-                <br>
-                <Dark_green><b>Members:</b></Dark_green><Gray> [<membercount>/<maxmembers>]</Gray><br>
-                <Gray>▪ </Gray><Gold>Leaders</Gold><Gray>:</Gray> <claimowner><br>
-                <Gray>▪ </Gray><Yellow>Co-Leaders</Yellow><Gray>:</Gray> <claimcoleaders><br>
-                <Gray>▪ </Gray><Aqua>Officers</Aqua><Gray>:</Gray> <claimofficers><br>
-                <Gray>▪ </Gray><Green>Members</Green><Gray>:</Gray> <claimmembers><br>
-                <Gray>▪ Limited-Members:</Gray> <claimlimitedmembers><br>
-                <br>
-                """,
+                        <br>
+                        <Green><b><claimname></b></Green><br>
+                        <br>
+                        <Yellow><b>Info:</b></Yellow><br>
+                        <Gray>▪ </Gray><White>Claim Chest: <Yellow><xcoord><Gray>, </Gray><ycoord><Gray>, </Gray><zcoord></Yellow></White><br>
+                        <Gray>▪ </Gray><White>Claims: </White><Yellow><claimcount></Yellow><br>
+                        <Gray>▪ </Gray><White>Power: </White><Yellow><power></Yellow><Dark_Gray>{#<rank>}</Dark_Gray><br>
+                        <br>
+                        <Dark_green><b>Members:</b></Dark_green><Gray> [<membercount>/<maxmembers>]</Gray><br>
+                        <Gray>▪ </Gray><Gold>Leaders</Gold><Gray>:</Gray> <claimowner><br>
+                        <Gray>▪ </Gray><Yellow>Co-Leaders</Yellow><Gray>:</Gray> <claimcoleaders><br>
+                        <Gray>▪ </Gray><Aqua>Officers</Aqua><Gray>:</Gray> <claimofficers><br>
+                        <Gray>▪ </Gray><Green>Members</Green><Gray>:</Gray> <claimmembers><br>
+                        <Gray>▪ Limited-Members:</Gray> <claimlimitedmembers><br>
+                        <br>
+                        """,
                 Placeholder.component("claimname", cc(claim.getClaimName())),
                 Placeholder.component("xcoord", cc(loc.getBlockX())),
                 Placeholder.component("ycoord", cc(loc.getBlockY())),
@@ -553,7 +669,7 @@ public class ClaimCommand extends BaseCommand {
                 Placeholder.component("membercount", cc(claim.getMembers().size())),
                 Placeholder.component("maxmembers", cc(claimManager.getMaxMembers())),
                 Placeholder.component("claimowner", cc(getMemberString(claim.getOwner()))),
-                Placeholder.component("claimcoleaders", cc(getMemberTypeString(claim,ClaimRole.CO_LEADER))),
+                Placeholder.component("claimcoleaders", cc(getMemberTypeString(claim, ClaimRole.CO_LEADER))),
                 Placeholder.component("claimofficers", cc(getMemberTypeString(claim, ClaimRole.OFFICER))),
                 Placeholder.component("claimmembers", cc(getMemberTypeString(claim, ClaimRole.MEMBER))),
                 Placeholder.component("claimlimitedmembers", cc(getMemberTypeString(claim, ClaimRole.LIMITED_MEMBER)))
@@ -575,7 +691,7 @@ public class ClaimCommand extends BaseCommand {
         return String.join(", ", members.stream().map(this::getMemberString).toList());
     }
 
-    private void handleInvite (Player inviter, OfflinePlayer target) {
+    private void handleInvite(Player inviter, OfflinePlayer target) {
         Claim claim = claimManager.getClaim(inviter);
         if (claim == null) {
             inviter.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
@@ -599,15 +715,15 @@ public class ClaimCommand extends BaseCommand {
         }
 
         claim.addInvite(target.getUniqueId());
-        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has been invited to <Yellow>Claim</Yellow>.</White>"));
+        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has been invited to <Yellow>Claim</Yellow>.</White>", Placeholder.component("target", cc(target.getName()))));
         if (target.isOnline()) {
             ((Player) target).sendMessage(cm(
                     """
-                    <br>
-                    <White>You have been invited to join <Yellow><claimname></Yellow></White><br>
-                    <Yellow><click:run_command /claim join <claimname>>[Click here to accept]</click></Yellow><br>
-                    <br>
-                    """,
+                            <br>
+                            <White>You have been invited to join <Yellow><claimname></Yellow></White><br>
+                            <Yellow><click:run_command /claim join <claimname>>[Click here to accept]</click></Yellow><br>
+                            <br>
+                            """,
                     Placeholder.component("claimname", cc(claim.getClaimName()))
             ));
         }
@@ -630,6 +746,114 @@ public class ClaimCommand extends BaseCommand {
 
         claim.removeInvite(target.getUniqueId());
         player.sendMessage(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has been un-invited from the <#D22B2B>Claim Team</#D22B2B>.", Placeholder.component("target", cc(target.getName()))));
+    }
 
+    private void handleJoin(Player player, String target) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim != null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You're already in a Team."));
+            return;
+        }
+        Claim targetClaim = claimManager.getClaim(target);
+        if (targetClaim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>Cannot find Claim <#D22B2B><claimname></#D22B2B>.", Placeholder.component("claimname", cc(target))));
+            return;
+        }
+        if (!targetClaim.getInvites().asMap().containsKey(player.getUniqueId())) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You have not been invited to join this team"));
+            return;
+        }
+
+        targetClaim.removeInvite(player.getUniqueId());
+        targetClaim.addMember(player.getUniqueId());
+        targetClaim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has joined the team", Placeholder.component("target", cc(player.getName()))));
+    }
+
+    private void handleKick(Player player, OfflinePlayer target) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (!claim.isMember(target.getUniqueId())) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>This player is not in your claim!"));
+            return;
+        }
+        if (target.getUniqueId() == player.getUniqueId()) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You cannot kick yourself"));
+            return;
+        }
+        if (claim.getRole(player).getPermission() > 3) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to kick this player!"));
+            return;
+        }
+        ClaimRole role = claim.getRole(target);
+        if (role.getPermission() <= claim.getRole(player).getPermission()) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to kick this player!"));
+            return;
+        }
+
+        claim.removeMember(target.getUniqueId());
+        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has been kicked from the team", Placeholder.component("target", cc(target.getName()))));
+        if (target.isOnline()) {
+            ((Player) target).sendMessage(cm("<Gray>▪ </Gray><White>You have been kicked from <#D22B2B><claimname></#D22B2B>", Placeholder.component("claimname", cc(claim.getClaimName()))));
+        }
+    }
+
+    private void handleLeader(Player player, OfflinePlayer target) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (!claim.isMember(target.getUniqueId())) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>This player is not in your claim!"));
+            return;
+        }
+        if (claim.getRole(player).equals(ClaimRole.OWNER)) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>Only the Claim Leader can change the Leader!"));
+            return;
+        }
+        if (target.getUniqueId() == player.getUniqueId()) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You can't transfer leadership to yourself"));
+            return;
+        }
+        claim.changeRole(player.getUniqueId(), ClaimRole.CO_LEADER);
+        claim.changeRole(target.getUniqueId(), ClaimRole.OWNER);
+        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> is now the Claim Leader", Placeholder.component("target", cc(target.getName()))));
+    }
+
+    private void handleLeave(Player player) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (claim.getRole(player).equals(ClaimRole.OWNER)) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You can't leave as <Gold>Leader</Gold>, you must either transfer the ownership or disband the claim."));
+            return;
+        }
+        claim.removeMember(player);
+        player.sendMessage(cm("<Gray>▪ </Gray><White>You have left <#D22B2B><claimname></#D22B2B>", Placeholder.component("claimname", cc(claim.getClaimName()))));
+        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> has left the team.", Placeholder.component("target", cc(player.getName()))));
+    }
+
+    private void handleRename(Player player, String name) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (claim.getRole(player).getPermission() > 2) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to rename the claim"));
+            return;
+        }
+        if (claimManager.getClaim(name) != null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red><claimname> is already in use", Placeholder.component("claimname", cc(name))));
+            return;
+        }
+        name = name.replace("&", "");
+        claim.setClaimName(name);
+        claim.sendMessageToAll(cm("<Gray>▪ </Gray><White>Changed <#D22B2B>Claim</#D22B2B> name to <#D22B2B><claimname></#D22B2B>", Placeholder.component("claimname", cc(name))));
     }
 }
