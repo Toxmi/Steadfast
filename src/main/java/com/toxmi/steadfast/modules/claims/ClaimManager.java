@@ -146,8 +146,7 @@ public class ClaimManager {
     public void deleteClaim(UUID claimID) {
         Claim claim = claims.remove(claimID);
         if (claim == null) return;
-        unindexClaim(claim);
-        claim.deleteClaim();
+        disbandClaim(claim);
     }
 
     public Claim createClaim(Player owner, Location claimChestLocation) {
@@ -202,6 +201,11 @@ public class ClaimManager {
 
     public void addShieldTask(@NotNull Claim claim) {
 
+    }
+
+    public void disbandClaim(Claim claim) {
+        claim.deleteClaim();
+        unindexClaim(claim);
     }
 
 }

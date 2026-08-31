@@ -1,6 +1,5 @@
 package com.toxmi.steadfast.core.commands;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -11,16 +10,23 @@ import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.enums.ClaimRole;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
-import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver;
+import io.papermc.paper.dialog.Dialog;
+import io.papermc.paper.registry.data.dialog.ActionButton;
+import io.papermc.paper.registry.data.dialog.DialogBase;
+import io.papermc.paper.registry.data.dialog.action.DialogAction;
+import io.papermc.paper.registry.data.dialog.body.DialogBody;
+import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickCallback;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.geysermc.cumulus.form.CustomForm;
+import org.geysermc.floodgate.api.FloodgateApi;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +37,50 @@ public class ClaimCommand extends BaseCommand {
 
     private final ClaimManager claimManager = ClaimManager.get();
     private final ItemBuilder ib = ItemBuilder.get();
+    private final List<Component> helpComponents = List.of(
+            cm("""
+                    <br>
+                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 1 out of 3)</Gray><br>
+                    <#D22B2B> | </#D22B2B><White>/claim create</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim disband</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim rename <name></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim invite <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim uninvite <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim join <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim leave</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim kick <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim leader <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim promote <player></White><br>
+                    <Gray><st>           </st><click:run_command:/claim help 2><Green>Next [›]</Green></click><st>           <br>
+                    """),
+            cm("""
+                    <br>
+                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 2 out of 3)</Gray><br>
+                    <#D22B2B> | </#D22B2B><White>/claim demote <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim buychunk</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim deletechunk</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim info [teamName]</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim permissions</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim chat [message]</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim allychat [message]</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim teleport</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim findchest</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim ally <teamName></White><br>
+                    <Gray><st>           </st><click:run_command:/claim help 1><Red>[‹] Back</Red></click><st>     </st><Yellow>2</Yellow><st>     </st><click:run_command:/claim help 3><Green>Next [›]</Green></click><st>           <br>
+                    
+                    """),
+            cm("""
+                    <br>
+                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 3 out of 3)</Gray><br>
+                    <#D22B2B> | </#D22B2B><White>/claim unally</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim focus <player></White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim unfocus</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim top</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim bed</White><br>
+                    <#D22B2B> | </#D22B2B><White>/claim help [page]</White><br>
+                    <Gray><st>           </st><click:run_command:/claim help 2><Red>[‹] Back</Red></click><st>           <br>
+                    """)
+    );
 
     @Override
     public LiteralCommandNode<CommandSourceStack> node() {
@@ -56,7 +106,7 @@ public class ClaimCommand extends BaseCommand {
                                         return Command.SINGLE_SUCCESS;
                                     }
                                     // TODO - ALLIANCES IMPLEMENTATION
-                                    player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Ally request sent to <#D22B2B>%s</#D22B2B>",teamName)));
+                                    player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Ally request sent to <#D22B2B>%s</#D22B2B>", teamName)));
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
@@ -122,13 +172,20 @@ public class ClaimCommand extends BaseCommand {
                                     Player player = requirePlayer(ctx);
                                     OfflinePlayer target = plugin.getServer().getOfflinePlayer(StringArgumentType.getString(ctx, "player"));
                                     if (!target.hasPlayedBefore()) {
-                                        player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!",ctx.getArgument("player", String.class))));
+                                        player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!", ctx.getArgument("player", String.class))));
                                     }
                                     handleDemote(player, target);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
 
+                )
+                .then(Commands.literal("disband")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            handleDisband(player);
+                            return Command.SINGLE_SUCCESS;
+                        })
                 )
                 .then(Commands.literal("promote")
                         .executes(ctx -> {
@@ -141,7 +198,7 @@ public class ClaimCommand extends BaseCommand {
                                     Player player = requirePlayer(ctx);
                                     OfflinePlayer target = plugin.getServer().getOfflinePlayer(StringArgumentType.getString(ctx, "player"));
                                     if (!target.hasPlayedBefore()) {
-                                        player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!",ctx.getArgument("player", String.class))));
+                                        player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!", ctx.getArgument("player", String.class))));
                                     }
                                     handlePromote(player, target);
                                     return Command.SINGLE_SUCCESS;
@@ -150,52 +207,6 @@ public class ClaimCommand extends BaseCommand {
                 )
                 .build();
     }
-
-
-    private final List<Component> helpComponents = List.of(
-            cm("""
-                    <br>
-                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 1 out of 3)</Gray><br>
-                    <#D22B2B> | </#D22B2B><White>/claim create</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim disband</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim rename <name></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim invite <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim uninvite <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim join <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim leave</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim kick <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim leader <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim promote <player></White><br>
-                    <Gray><st>           </st><click:run_command:/claim help 2><Green>Next [›]</Green></click><st>           <br>
-                    """),
-            cm("""
-                    <br>
-                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 2 out of 3)</Gray><br>
-                    <#D22B2B> | </#D22B2B><White>/claim demote <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim buychunk</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim deletechunk</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim info [teamName]</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim permissions</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim chat [message]</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim allychat [message]</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim teleport</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim findchest</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim ally <teamName></White><br>
-                    <Gray><st>           </st><click:run_command:/claim help 1><Red>[‹] Back</Red></click><st>     </st><Yellow>2</Yellow><st>     </st><click:run_command:/claim help 3><Green>Next [›]</Green></click><st>           <br>
-                    
-                    """),
-            cm("""
-                    <br>
-                    <#D22B2B><b>Claim Usage </b></#D22B2B><Gray>(Page 3 out of 3)</Gray><br>
-                    <#D22B2B> | </#D22B2B><White>/claim unally</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim focus <player></White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim unfocus</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim top</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim bed</White><br>
-                    <#D22B2B> | </#D22B2B><White>/claim help [page]</White><br>
-                    <Gray><st>           </st><click:run_command:/claim help 2><Red>[‹] Back</Red></click><st>           <br>
-                    """)
-    );
 
     private void handleHelp(Player player, int page) {
         player.sendMessage(helpComponents.get(page - 1));
@@ -243,7 +254,7 @@ public class ClaimCommand extends BaseCommand {
             demoter.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to demote this player!"));
             return;
         }
-        if (role.getPermission() == 5   ) {
+        if (role.getPermission() == 5) {
             demoter.sendMessage(cm("<Gray>▪ </Gray><Red>This player is already a Limited Member"));
             return;
         }
@@ -252,13 +263,13 @@ public class ClaimCommand extends BaseCommand {
 
         for (UUID member : claim.getMembers()) {
             Player p = plugin.getServer().getPlayer(member);
-            if (p != null && p != demoter && p.getUniqueId() != target.getUniqueId() ) {
+            if (p != null && p != demoter && p.getUniqueId() != target.getUniqueId()) {
                 p.sendMessage(cm(
                         "<Gray>▪ </Gray><Red><target> was demoted to <role> by <demoter>!",
                         Placeholder.component("target", cc(target.getName())),
                         Placeholder.component("role", cc(role.next().getDisplayName())),
                         Placeholder.component("demoter", cc(demoter.getName()))
-                        ));
+                ));
             }
         }
         demoter.sendMessage(cm(
@@ -274,7 +285,6 @@ public class ClaimCommand extends BaseCommand {
                     Placeholder.component("role", cc(role.next().getDisplayName()))
             ));
         }
-
     }
 
     private void handlePromote(Player promoter, OfflinePlayer target) {
@@ -309,7 +319,7 @@ public class ClaimCommand extends BaseCommand {
 
         for (UUID member : claim.getMembers()) {
             Player p = plugin.getServer().getPlayer(member);
-            if (p != null && p != promoter && p.getUniqueId() != target.getUniqueId() ) {
+            if (p != null && p != promoter && p.getUniqueId() != target.getUniqueId()) {
                 p.sendMessage(cm(
                         "<Gray>▪ </Gray><Red><target> was promoted to <role> by <promoter>!",
                         Placeholder.component("target", cc(target.getName())),
@@ -318,6 +328,7 @@ public class ClaimCommand extends BaseCommand {
                 ));
             }
         }
+
         promoter.sendMessage(cm(
                 "<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> was promoted to <#D22B2B><role></#D22B2B>",
                 Placeholder.component("target", cc(target.getName())),
@@ -331,10 +342,69 @@ public class ClaimCommand extends BaseCommand {
                     Placeholder.component("role", cc(role.previous().getDisplayName()))
             ));
         }
-
     }
 
+    private void handleDisband(Player player) {
+        Claim claim = claimManager.getClaim(player);
+        if (claim == null) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
 
+        if (!claim.getRole(player).equals(ClaimRole.OWNER)) {
+            player.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to disband this claim!"));
+            return;
+        }
+
+        if (plugin.isFloodGatePlayer(player)) {
+            CustomForm form = CustomForm.builder()
+                    .title("Disband claim?")
+                    .label("By clicking confirm your claim will be disbanded")
+                    .validResultHandler(response -> {
+                        claimManager.disbandClaim(claim);
+                    })
+                    .closedOrInvalidResultHandler(() -> {})
+                    .build();
+            FloodgateApi.getInstance().sendForm(player.getUniqueId(), form);
+        } else {
+            Dialog dialog = Dialog.create(builder -> builder.empty()
+                    .base(DialogBase.builder(cc("Disband Claim").color(NamedTextColor.RED))
+                            .body(List.of(
+                                    DialogBody.plainMessage(cm("<Gray>Are you sure you want to disband this claim?"))
+                            )).build()
+
+                    )
+                    .type(DialogType.confirmation(
+                            ActionButton.create(
+                                    cc("Confirm"),
+                                    cc("Click to confirm"),
+                                    100,
+                                    DialogAction.customClick((view, audience) -> {
+                                                claimManager.disbandClaim(claim);
+
+                                            }, ClickCallback.Options.builder()
+                                                    .uses(1)
+                                                    .lifetime(ClickCallback.DEFAULT_LIFETIME)
+                                                    .build()
+                                    )
+                            ),
+                            ActionButton.create(
+                                    Component.text("Cancel"),
+                                    Component.text("Click to cancel"),
+                                    100,
+                                    DialogAction.customClick((view, audience) -> {
+                                            },
+                                            ClickCallback.Options.builder()
+                                                    .uses(1)
+                                                    .lifetime(ClickCallback.DEFAULT_LIFETIME)
+                                                    .build()
+                                    )
+                            )
+                    ))
+            );
+            player.showDialog(dialog);
+        }
+    }
 
 
 }

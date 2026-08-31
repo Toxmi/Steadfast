@@ -11,8 +11,10 @@ import com.toxmi.steadfast.modules.customenchants.CustomListener;
 import com.toxmi.steadfast.modules.customenchants.CustomManager;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 public final class Steadfast extends JavaPlugin {
     private static Steadfast instance;
@@ -26,6 +28,8 @@ public final class Steadfast extends JavaPlugin {
 
     private FileConfiguration config;
 
+    private boolean isFloodGateActive = false;
+
     public static Steadfast get() {
         return instance;
     }
@@ -38,6 +42,9 @@ public final class Steadfast extends JavaPlugin {
         // Plugin startup logic
         this.scheduler = new Scheduler(this);
         this.config = getConfig();
+
+        isFloodGateActive = getServer().getPluginManager().isPluginEnabled("floodgate");
+
         if (this.config.getBoolean("database.enabled")) {
 
 
@@ -96,5 +103,10 @@ public final class Steadfast extends JavaPlugin {
         customManager.reload();
         claimManager.reload();
         claimChestListener.reload();
+    }
+
+    public boolean isFloodGatePlayer(Player player) {
+        if (!isFloodGateActive) return false;
+        return FloodgateApi.getInstance().isFloodgatePlayer(player.getUniqueId());
     }
 }
