@@ -1,11 +1,14 @@
 package com.toxmi.steadfast.modules.claims;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.utils.SQL;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.core.utils.TimeFormatter;
 import com.toxmi.steadfast.modules.claims.enums.*;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -15,6 +18,7 @@ import org.bukkit.entity.Player;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +29,9 @@ public class Claim {
 
     private final Map<UUID, ClaimRole> MEMBERS = new ConcurrentHashMap<>();
     private final Set<ChunkPos> CHUNKS = ConcurrentHashMap.newKeySet();
-    private final Map<UUID, Long> INVITES = new ConcurrentHashMap<>();
+    private final Cache<UUID, Long> INVITES = CacheBuilder.newBuilder()
+            .expireAfterWrite(Duration.ofSeconds(300))
+            .build();
     private final Map<Integer, Artifact> artifacts = new ConcurrentHashMap<>();
 
     private final UUID claimID;
@@ -238,7 +244,7 @@ public class Claim {
     }
 
     public void removeInvite(UUID target) {
-        INVITES.remove(target);
+        INVITES.invalidate(target);
     }
 
 
@@ -352,7 +358,7 @@ public class Claim {
         return MEMBERS.entrySet().stream().filter(e -> e.getValue() == ClaimRole.OWNER).map(Map.Entry::getKey).findFirst().orElse(null);
     }
 
-    public Map<UUID, Long> getInvites() {
+    public Cache<UUID, Long> getInvites() {
         return INVITES;
     }
 
@@ -390,6 +396,16 @@ public class Claim {
 
     public ClaimRole getRole(OfflinePlayer player) {
         return MEMBERS.get(player.getUniqueId());
+    }
+
+    public List<UUID> getMembersByRole(ClaimRole role) {
+        return MEMBERS.entrySet().stream().filter(e -> e.getValue() == role).map(Map.Entry::getKey).toList();
+    }
+
+    public void sendMessageToAll(Component message) {
+        for (UUID member : MEMBERS.keySet()) {
+            plugin.getServer().getPlayer(member).sendMessage(message);
+        }
     }
 
     @Override

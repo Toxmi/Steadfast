@@ -37,6 +37,7 @@ public class ClaimManager {
 
 
     private int CLAIM_DISTANCE;
+    private int MAX_MEMBERS;
 
 
     public ClaimManager() {
@@ -66,6 +67,7 @@ public class ClaimManager {
 
     public void load() {
         CLAIM_DISTANCE = config.getInt("claim-distance");
+        MAX_MEMBERS = config.getInt("max-members");
     }
 
     public void reload() {
@@ -201,6 +203,10 @@ public class ClaimManager {
 
     public void addShieldTask(@NotNull Claim claim) {
 
+    }
+
+    public int getMaxMembers() {
+        return MAX_MEMBERS;
     }
 
     public void disbandClaim(Claim claim) {

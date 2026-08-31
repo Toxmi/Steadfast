@@ -115,11 +115,11 @@ public class ClaimMenu extends Menu {
                             String.format("<Gray>▪ <Green>Members</Green>: </Gray>%s<br>", members.isEmpty() ? "<Red>None</Red>" : String.join(", ", members)) +
                             String.format("<Gray>▪ Limited-Members: </Gray>%s<br>", limitedMembers.isEmpty() ? "<Red>None</Red>" : String.join(", ", limitedMembers)) +
                             "<br>" +
-                            String.format("Invited: <Gray>(%s Invites Left)</Gray><br>", 14 - claim.getMembers().size() - claim.getInvites().entrySet().stream().filter(entry -> {
+                            String.format("Invited: <Gray>(%s Invites Left)</Gray><br>", 14 - claim.getMembers().size() - claim.getInvites().asMap().entrySet().stream().filter(entry -> {
                                 return entry.getValue() + 60000L > System.currentTimeMillis();
                             }).count());
                 };
-                claim.getInvites().entrySet().stream().filter(entry -> entry.getValue() + 60000L < System.currentTimeMillis()).forEach(entry -> {
+                claim.getInvites().asMap().entrySet().stream().filter(entry -> entry.getValue() + 60000L < System.currentTimeMillis()).forEach(entry -> {
                     ref.lore = ref.lore + "<Gray>▪ </Gray> " + plugin.getServer().getOfflinePlayer(entry.getKey()).getName() + "<br>";
                 });
                 ref.lore = ref.lore + "<Green>➡ Click to manage your members</Green>";

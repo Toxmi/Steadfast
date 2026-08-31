@@ -1,3 +1,4 @@
 claim-distance: 5
+max-members: 14
 allowed-worlds:
   - 'overworld'

@@ -8,6 +8,7 @@ import com.toxmi.steadfast.Steadfast;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
 
 public abstract class BaseCommand {
     protected final Steadfast plugin = Steadfast.get();
@@ -24,5 +25,11 @@ public abstract class BaseCommand {
 
     protected OfflinePlayer getOfflinePlayer(PlayerProfile profile) {
         return plugin.getServer().getOfflinePlayer(profile.getId());
+    }
+    protected boolean isVanished(Player player) {
+        for (MetadataValue meta : player.getMetadata("vanished")) {
+            if (meta.asBoolean()) return true;
+        }
+        return false;
     }
 }
