@@ -8,6 +8,7 @@ import com.toxmi.steadfast.core.utils.TimeFormatter;
 import com.toxmi.steadfast.modules.claims.enums.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -381,6 +382,14 @@ public class Claim {
 
     public void removeChunk(Chunk chunk) {
         removeChunk(ChunkPos.of(chunk));
+    }
+
+    public ClaimRole getRole(UUID player) {
+        return MEMBERS.get(player);
+    }
+
+    public ClaimRole getRole(OfflinePlayer player) {
+        return MEMBERS.get(player.getUniqueId());
     }
 
     @Override

@@ -8,17 +8,21 @@ import com.toxmi.steadfast.core.utils.ItemBuilder;
 import com.toxmi.steadfast.core.utils.Keys;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
+import com.toxmi.steadfast.modules.claims.enums.ClaimRole;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import static com.toxmi.steadfast.core.utils.Str.cc;
 import static com.toxmi.steadfast.core.utils.Str.cm;
@@ -113,18 +117,38 @@ public class ClaimCommand extends BaseCommand {
                             player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim demote <player></White>"));
                             return Command.SINGLE_SUCCESS;
                         })
-                        .then(Commands.argument("player", ArgumentTypes.playerProfiles())
+                        .then(Commands.argument("player", StringArgumentType.word())
                                 .executes(ctx -> {
                                     Player player = requirePlayer(ctx);
-                                    final PlayerProfileListResolver profilesResolver = ctx.getArgument("player", PlayerProfileListResolver.class);
-                                    PlayerProfile profile = (PlayerProfile) profilesResolver.resolve(ctx.getSource()).toArray()[0];
-                                    if (profile == null) {
+                                    OfflinePlayer target = plugin.getServer().getOfflinePlayer(StringArgumentType.getString(ctx, "player"));
+                                    if (!target.hasPlayedBefore()) {
                                         player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!",ctx.getArgument("player", String.class))));
                                     }
+                                    handleDemote(player, target);
                                     return Command.SINGLE_SUCCESS;
                                 })
                         )
-                ).build();
+
+                )
+                .then(Commands.literal("promote")
+                        .executes(ctx -> {
+                            Player player = requirePlayer(ctx);
+                            player.sendMessage(cm("<Gray>▪ </Gray><#D22B2B>Usage: </#D22B2B><White>/claim promote <player></White>"));
+                            return Command.SINGLE_SUCCESS;
+                        })
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    Player player = requirePlayer(ctx);
+                                    OfflinePlayer target = plugin.getServer().getOfflinePlayer(StringArgumentType.getString(ctx, "player"));
+                                    if (!target.hasPlayedBefore()) {
+                                        player.sendMessage(cm(String.format("<Gray>▪ </Gray><White>Player <Red>%s</Red> not found!",ctx.getArgument("player", String.class))));
+                                    }
+                                    handlePromote(player, target);
+                                    return Command.SINGLE_SUCCESS;
+                                })
+                        )
+                )
+                .build();
     }
 
 
@@ -194,6 +218,120 @@ public class ClaimCommand extends BaseCommand {
         }
         player.sendMessage(cm("<Gray>▪ </Gray><White>To <#D22B2B>Claim Land </#D22B2B>you need to place a <#D22B2B>Claim Chest </#D22B2B> in the chunk you want to claim."));
         player.sendMessage(cm("<Gray>▪ </Gray><White>Place it somewhere safe, if it is <#D22B2B><b>DESTROYED</b></#D22B2B>, your claim is <#D22B2B><b>LOST.</b></#D22B2B>"));
+    }
+
+    private void handleDemote(Player demoter, OfflinePlayer target) {
+        Claim claim = claimManager.getClaim(demoter);
+        if (claim == null) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (!claim.isMember(target.getUniqueId())) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>This player is not in your claim!"));
+            return;
+        }
+        if (target.getUniqueId() == demoter.getUniqueId()) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>You cannot demote yourself"));
+            return;
+        }
+        if (claim.getRole(demoter).getPermission() > 3) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to demote this player!"));
+            return;
+        }
+        ClaimRole role = claim.getRole(target);
+        if (role.getPermission() <= claim.getRole(demoter).getPermission()) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to demote this player!"));
+            return;
+        }
+        if (role.getPermission() == 5   ) {
+            demoter.sendMessage(cm("<Gray>▪ </Gray><Red>This player is already a Limited Member"));
+            return;
+        }
+
+        claim.changeRole(target.getUniqueId(), role.next());
+
+        for (UUID member : claim.getMembers()) {
+            Player p = plugin.getServer().getPlayer(member);
+            if (p != null && p != demoter && p.getUniqueId() != target.getUniqueId() ) {
+                p.sendMessage(cm(
+                        "<Gray>▪ </Gray><Red><target> was demoted to <role> by <demoter>!",
+                        Placeholder.component("target", cc(target.getName())),
+                        Placeholder.component("role", cc(role.next().getDisplayName())),
+                        Placeholder.component("demoter", cc(demoter.getName()))
+                        ));
+            }
+        }
+        demoter.sendMessage(cm(
+                "<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> was demoted to <#D22B2B><role></#D22B2B>",
+                Placeholder.component("target", cc(target.getName())),
+                Placeholder.component("role", cc(role.next().getDisplayName()))
+        ));
+
+        if (target.getPlayer() != null) {
+            target.getPlayer().sendMessage(cm(
+                    "<Gray>▪ </Gray><White>You were demoted to <#D22B2B><role></#D22B2B> by <#D22B2B><demoter></#D22B2B>",
+                    Placeholder.component("demoter", demoter.name()),
+                    Placeholder.component("role", cc(role.next().getDisplayName()))
+            ));
+        }
+
+    }
+
+    private void handlePromote(Player promoter, OfflinePlayer target) {
+        Claim claim = claimManager.getClaim(promoter);
+        if (claim == null) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>You are not in a Claim!"));
+            return;
+        }
+        if (!claim.isMember(target.getUniqueId())) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>This player is not in your claim!"));
+            return;
+        }
+        if (target.getUniqueId() == promoter.getUniqueId()) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>You cannot promote yourself"));
+            return;
+        }
+        if (claim.getRole(promoter).getPermission() >= 3) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to promote this player!"));
+            return;
+        }
+        ClaimRole role = claim.getRole(target);
+        if (role.getPermission() <= claim.getRole(promoter).getPermission()) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>You do not have permission to promote this player!"));
+            return;
+        }
+        if (role.getPermission() == 2) {
+            promoter.sendMessage(cm("<Gray>▪ </Gray><Red>Cannot promote this player to Leader. Use <White>/claim leader <player></White>"));
+            return;
+        }
+
+        claim.changeRole(target.getUniqueId(), role.previous());
+
+        for (UUID member : claim.getMembers()) {
+            Player p = plugin.getServer().getPlayer(member);
+            if (p != null && p != promoter && p.getUniqueId() != target.getUniqueId() ) {
+                p.sendMessage(cm(
+                        "<Gray>▪ </Gray><Red><target> was promoted to <role> by <promoter>!",
+                        Placeholder.component("target", cc(target.getName())),
+                        Placeholder.component("role", cc(role.previous().getDisplayName())),
+                        Placeholder.component("promoter", cc(promoter.getName()))
+                ));
+            }
+        }
+        promoter.sendMessage(cm(
+                "<Gray>▪ </Gray><White><#D22B2B><target></#D22B2B> was promoted to <#D22B2B><role></#D22B2B>",
+                Placeholder.component("target", cc(target.getName())),
+                Placeholder.component("role", cc(role.previous().getDisplayName()))
+        ));
+
+        if (target.getPlayer() != null) {
+            target.getPlayer().sendMessage(cm(
+                    "<Gray>▪ </Gray><White>You were promoted to <#D22B2B><role></#D22B2B> by <#D22B2B><promoter></#D22B2B>",
+                    Placeholder.component("promoter", promoter.name()),
+                    Placeholder.component("role", cc(role.previous().getDisplayName()))
+            ));
+        }
+
     }
 
 
