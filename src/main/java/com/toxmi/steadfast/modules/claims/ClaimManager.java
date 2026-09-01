@@ -28,8 +28,6 @@ public class ClaimManager {
 
     private final Map<UUID, Claim> claims = new ConcurrentHashMap<>();
     private final Map<ChunkPos, Claim> chunkIndex = new ConcurrentHashMap<>();
-    private final Map<UUID, ScheduledTask> claimShieldTasks = new ConcurrentHashMap<>();
-
 
 
     private File file;
@@ -38,6 +36,8 @@ public class ClaimManager {
 
     private int CLAIM_DISTANCE;
     private int MAX_MEMBERS;
+    private int CHARGE_TIME;
+    private int ACTIVATION_TIME;
 
 
     public ClaimManager() {
@@ -68,6 +68,8 @@ public class ClaimManager {
     public void load() {
         CLAIM_DISTANCE = config.getInt("claim-distance");
         MAX_MEMBERS = config.getInt("max-members");
+        CHARGE_TIME = config.getInt("charge-time");
+        ACTIVATION_TIME = config.getInt("activation-time");
     }
 
     public void reload() {
@@ -201,8 +203,8 @@ public class ClaimManager {
         return config;
     }
 
-    public void addShieldTask(@NotNull Claim claim) {
-
+    public void tickClaims() {
+        claims.values().forEach(Claim::tick);
     }
 
     public int getMaxMembers() {
@@ -212,6 +214,14 @@ public class ClaimManager {
     public void disbandClaim(Claim claim) {
         claim.deleteClaim();
         unindexClaim(claim);
+    }
+
+    public int getChargeTime() {
+        return CHARGE_TIME;
+    }
+
+    public int getActivationTime() {
+        return ACTIVATION_TIME;
     }
 
 }

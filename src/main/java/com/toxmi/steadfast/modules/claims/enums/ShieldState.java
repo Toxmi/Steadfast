@@ -4,9 +4,7 @@ public enum ShieldState {
     INACTIVE("RED"),
     ACTIVE("Green"),
     CHARGING("Aqua"),
-    ACTIVATING("Blue"),
-    RECHARGING("Yellow");
-
+    ACTIVATING("Blue");
     ShieldState(String color) {
         this.color = color;
     }

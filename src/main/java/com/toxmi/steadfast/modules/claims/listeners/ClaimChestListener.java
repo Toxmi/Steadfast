@@ -82,7 +82,7 @@ public class ClaimChestListener implements Listener {
     }
 
     private void createClaimHolo(Claim claim, Location location) {
-        createHolo(location.add(0,0.5,0),Keys.claimHoloKey, claim.getClaimID().toString(),
+        createHolo(location.add(0,0.5,0),Keys.claimHoloKey, claim.toString(),
                 List.of(
                         cc(claim.getClaimName()).color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD,true),
                         cc(""),

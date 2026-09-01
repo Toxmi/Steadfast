@@ -1,4 +1,6 @@
 claim-distance: 5
 max-members: 14
+charge-time: 900
+activation-time: 300
 allowed-worlds:
   - 'overworld'

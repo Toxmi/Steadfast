@@ -4,11 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.toxmi.steadfast.Steadfast;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
-import com.toxmi.steadfast.core.utils.SQL;
-import com.toxmi.steadfast.core.utils.Scheduler;
-import com.toxmi.steadfast.core.utils.TimeFormatter;
+import com.toxmi.steadfast.core.utils.*;
 import com.toxmi.steadfast.modules.claims.enums.*;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -22,10 +21,14 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.toxmi.steadfast.core.utils.Str.cc;
+import static com.toxmi.steadfast.core.utils.Str.cm;
+
 public class Claim {
     private final Steadfast plugin;
     private final Scheduler sch;
     private final DatabaseManager db;
+    private final ClaimManager cm;
 
     private final Map<UUID, ClaimRole> MEMBERS = new ConcurrentHashMap<>();
     private final Set<ChunkPos> CHUNKS = ConcurrentHashMap.newKeySet();
@@ -44,6 +47,7 @@ public class Claim {
     private double claimChestMaxHealth = 100;
     private int power = 0;
     private ShieldState shieldState = ShieldState.INACTIVE;
+    private Duration stateDuration = Duration.ZERO;
     private int shieldCharge = 0;
     private ShieldMode shieldMode = ShieldMode.AUTOMATIC;
 
@@ -51,6 +55,7 @@ public class Claim {
         this.plugin = Steadfast.get();
         this.sch = Scheduler.get();
         this.db = DatabaseManager.get();
+        this.cm = ClaimManager.get();
         this.claimID = claimID;
         loadClaim();
     }
@@ -59,6 +64,7 @@ public class Claim {
         this.plugin = Steadfast.get();
         this.sch = Scheduler.get();
         this.db = DatabaseManager.get();
+        this.cm = ClaimManager.get();
         this.claimID = UUID.randomUUID();
         this.claimName = String.format("%s's Claim", player.getName());
         this.claimChestLoc = claimChestLocation;
@@ -67,6 +73,8 @@ public class Claim {
     }
 
     public void initClaim(UUID claimID, String claimName, Location claimChestLoc) {
+        shieldState = ShieldState.ACTIVATING;
+        stateDuration = Duration.ofSeconds(cm.getActivationTime());
         sch.async(() -> {
             String locKey = String.join(":", String.valueOf(claimChestLoc.getBlockX()), String.valueOf(claimChestLoc.getBlockY()), String.valueOf(claimChestLoc.getBlockZ()));
             db.executeUpdate(SQL.INSERT_CLAIM, claimID.toString(), claimName, locKey);
@@ -404,8 +412,76 @@ public class Claim {
 
     public void sendMessageToAll(Component message) {
         for (UUID member : MEMBERS.keySet()) {
-            plugin.getServer().getPlayer(member).sendMessage(message);
+            OfflinePlayer player = plugin.getServer().getOfflinePlayer(member);
+            if (player.isOnline()) {
+                assert player.getPlayer() != null;
+                player.getPlayer().sendMessage(message);
+            }
         }
+    }
+
+    public void tick() {
+        sch.async(() -> {
+            if (shieldState == ShieldState.ACTIVATING) {
+                stateDuration = stateDuration.minusSeconds(1);
+                if (stateDuration.isNegative()) {
+                    stateDuration = Duration.ofSeconds(0);
+                    setShieldState(ShieldState.INACTIVE);
+                }
+            }
+            if (shieldState == ShieldState.ACTIVE) {
+                shieldCharge--;
+                if (shieldCharge <= 0) {
+                    shieldCharge = 0;
+                    setShieldState(ShieldState.INACTIVE);
+                }
+            } else if (shieldState == ShieldState.INACTIVE) {
+                shieldCharge++;
+            } else if (shieldState == ShieldState.CHARGING) {
+                stateDuration = stateDuration.minusSeconds(1);
+                if (stateDuration.isNegative()) {
+                    stateDuration = Duration.ofSeconds(0);
+                    setShieldState(ShieldState.ACTIVE);
+                }
+            }
+            if (shieldMode == ShieldMode.AUTOMATIC && shieldState == ShieldState.INACTIVE) {
+                if (getMembers().stream().noneMatch(p -> plugin.getServer().getOfflinePlayer(p).isOnline())) {
+                    setShieldState(ShieldState.CHARGING);
+                    stateDuration = Duration.ofSeconds(cm.getChargeTime());
+                }
+            } else if (shieldMode == ShieldMode.AUTOMATIC && shieldState == ShieldState.ACTIVE) {
+                if (getMembers().stream().anyMatch(p -> plugin.getServer().getOfflinePlayer(p).isOnline())) {
+                    setShieldState(ShieldState.INACTIVE);
+                    stateDuration = Duration.ofSeconds(0);
+                }
+            }
+            sch.region(claimChestLoc, () -> {
+                claimChestLoc.getWorld().getChunkAtAsync(claimChestLoc).thenAccept(chunk -> {
+                    HologramBuilder.setLine(claimChestLoc, Keys.claimHoloKey,toString(),2,2, getShiedHoloText());
+                });
+            });
+        });
+    }
+
+
+    public Component getShiedHoloText() {
+        if (shieldState == ShieldState.INACTIVE) return cm(
+                "<White>Shield Charge: <Yellow><time></Yellow></White>",
+                Placeholder.component("time", cc(getShieldTimeFormatted()))
+        );
+        else if (shieldState == ShieldState.ACTIVATING) return cm(
+                "<Green>Activating: <Yellow><time></Yellow></Green>",
+                Placeholder.component("time", cc(TimeFormatter.getFormattedTime(stateDuration.toSeconds())))
+        );
+        else if (shieldState == ShieldState.CHARGING) return cm(
+                "<White>Shield Charging: <Yellow><time></Yellow></White>",
+                Placeholder.component("time", cc(TimeFormatter.getFormattedTime(stateDuration.toSeconds())))
+        );
+        else if (shieldState == ShieldState.ACTIVE) return cm(
+                "<White>Active: <Yellow><time></Yellow></White>",
+                Placeholder.component("time", cc(TimeFormatter.getFormattedTime(shieldCharge)))
+        );
+        return cm("");
     }
 
     @Override

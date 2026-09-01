@@ -4,6 +4,7 @@ import com.toxmi.steadfast.core.commands.ClaimCommand;
 import com.toxmi.steadfast.core.commands.GiveCustomCommand;
 import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
+import com.toxmi.steadfast.core.managers.GlobalTask;
 import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
@@ -28,6 +29,7 @@ public final class Steadfast extends JavaPlugin {
     private ClaimManager claimManager;
     private ClaimChestListener claimChestListener;
     private MessageManager messageManager;
+    private GlobalTask globalTask;
 
     private FileConfiguration config;
 
@@ -60,6 +62,8 @@ public final class Steadfast extends JavaPlugin {
         initManagers();
         initListeners();
         initCommands();
+        globalTask = new GlobalTask(this);
+        globalTask.start();
     }
 
     @Override
