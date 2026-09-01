@@ -4,20 +4,28 @@ import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.core.utils.Keys;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
+import com.toxmi.steadfast.modules.claims.menus.ClaimMenu;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.TileState;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import static com.toxmi.steadfast.core.utils.HologramBuilder.createHolo;
 import static com.toxmi.steadfast.core.utils.Str.cc;
@@ -79,6 +87,35 @@ public class ClaimChestListener implements Listener {
         // Create the Claim if all previous checks passed
         Claim claim = claimManager.createClaim(player, block.getLocation());
         createClaimHolo(claim, block.getLocation());
+    }
+
+    @EventHandler
+    public void onClaimChestInteract(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if (block == null || !block.getType().equals(Material.CHEST) || !(block.getState() instanceof TileState state)) return;
+        if (!state.getPersistentDataContainer().has(Keys.claimKey, PersistentDataType.STRING)) return;
+
+        UUID claimId = UUID.fromString(Objects.requireNonNull(state.getPersistentDataContainer().get(Keys.claimKey, PersistentDataType.STRING)));
+        Claim claim = claimManager.getClaim(claimId);
+        if (claim == null) return;
+        event.setUseInteractedBlock(Event.Result.DENY);
+
+        Player player = event.getPlayer();
+        if (!claim.isMember(player)) return;
+        new ClaimMenu(claim).openMenu(player);
+
+    }
+
+    @EventHandler
+    public void onClaimChestBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (!block.getType().equals(Material.CHEST) || !(block.getState() instanceof TileState state)) return;
+        if (!state.getPersistentDataContainer().has(Keys.claimKey, PersistentDataType.STRING)) return;
+
+        UUID claimId = UUID.fromString(Objects.requireNonNull(state.getPersistentDataContainer().get(Keys.claimKey, PersistentDataType.STRING)));
+        Claim claim = claimManager.getClaim(claimId);
+        if (claim == null) return;
+        event.setCancelled(true);
     }
 
     private void createClaimHolo(Claim claim, Location location) {

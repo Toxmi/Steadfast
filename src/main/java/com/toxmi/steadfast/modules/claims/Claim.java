@@ -18,7 +18,10 @@ import org.bukkit.entity.Player;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.toxmi.steadfast.core.utils.Str.cc;
@@ -280,12 +283,12 @@ public class Claim {
         return shieldCharge;
     }
 
-    public String getShieldTimeFormatted() {
-        return TimeFormatter.getFormattedTime(shieldCharge);
-    }
-
     public void setShieldCharge(int shieldCharge) {
         this.shieldCharge = shieldCharge;
+    }
+
+    public String getShieldTimeFormatted() {
+        return TimeFormatter.getFormattedTime(shieldCharge);
     }
 
     public ShieldState getShieldState() {
@@ -455,9 +458,9 @@ public class Claim {
                     stateDuration = Duration.ofSeconds(0);
                 }
             }
-            sch.region(claimChestLoc, () -> {
-                claimChestLoc.getWorld().getChunkAtAsync(claimChestLoc).thenAccept(chunk -> {
-                    HologramBuilder.setLine(claimChestLoc, Keys.claimHoloKey,toString(),2,2, getShiedHoloText());
+            claimChestLoc.getWorld().getChunkAtAsync(claimChestLoc).thenAccept(chunk -> {
+                sch.region(claimChestLoc, () -> {
+                    HologramBuilder.setLine(claimChestLoc, Keys.claimHoloKey, toString(), 2, 2, getShiedHoloText());
                 });
             });
         });
