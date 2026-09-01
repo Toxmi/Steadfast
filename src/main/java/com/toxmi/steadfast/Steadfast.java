@@ -1,8 +1,10 @@
 package com.toxmi.steadfast;
 
+import com.toxmi.steadfast.core.commands.ClaimCommand;
 import com.toxmi.steadfast.core.commands.GiveCustomCommand;
 import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
+import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.listeners.ClaimChestListener;
@@ -25,6 +27,7 @@ public final class Steadfast extends JavaPlugin {
     private String databaseType;
     private ClaimManager claimManager;
     private ClaimChestListener claimChestListener;
+    private MessageManager messageManager;
 
     private FileConfiguration config;
 
@@ -67,6 +70,7 @@ public final class Steadfast extends JavaPlugin {
     }
 
     private void initManagers() {
+        this.messageManager = new MessageManager();
         this.claimManager = new ClaimManager();
         this.claimManager.loadClaims();
         this.customManager = new CustomManager();
@@ -87,6 +91,7 @@ public final class Steadfast extends JavaPlugin {
     public void initCommands() {
         this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, c -> {
             c.registrar().register(new GiveCustomCommand().node());
+            c.registrar().register(new ClaimCommand().node());
         });
     }
 

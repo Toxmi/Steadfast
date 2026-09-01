@@ -1,11 +1,11 @@
 package com.toxmi.steadfast.modules.claims.listeners;
 
+import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.enums.ShieldState;
 import io.papermc.paper.event.block.TargetHitEvent;
 import io.papermc.paper.event.player.PlayerBedFailEnterEvent;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
@@ -26,9 +26,11 @@ import static com.toxmi.steadfast.core.utils.Str.cm;
 
 public class ClaimProtectionListener implements Listener {
     private final ClaimManager claimManager;
+    private final MessageManager mm;
 
     public ClaimProtectionListener() {
         this.claimManager = ClaimManager.get();
+        this.mm = MessageManager.get();
     }
 
 
@@ -49,7 +51,7 @@ public class ClaimProtectionListener implements Listener {
 
         if (claim.isInCombat() && block.getType().equals(Material.SPAWNER)) {
             event.setCancelled(true);
-            player.sendMessage(cm("<Gray>▪ <Red>You cannot break spawners in combat!"));
+            player.sendMessage(cm(mm.get("claim.spawner-combat")));
             return;
         }
 

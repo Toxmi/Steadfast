@@ -1,9 +1,9 @@
 package com.toxmi.steadfast.modules.claims.listeners;
 
+import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.core.utils.Keys;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -27,8 +27,10 @@ public class ClaimChestListener implements Listener {
 
     private final ClaimManager claimManager;
     private final List<String> allowedWorlds = new ArrayList<>();
+    private final MessageManager mm;
     public ClaimChestListener() {
         this.claimManager = ClaimManager.get();
+        this.mm = MessageManager.get();
         reload();
     }
 
@@ -48,28 +50,28 @@ public class ClaimChestListener implements Listener {
 
         // Check if the player can make claims in this dimension
         if (allowedWorlds.contains(player.getWorld().getName())) {
-            player.sendMessage(cm("<Gray>▪ <Red>You cannot place a Claim in this dimension."));
+            player.sendMessage(cm(mm.get("claim.invalid-dimension")));
             event.setCancelled(true);
             return;
         }
 
         // Check if the player is already in a claim
         if (claimManager.getClaim(player) != null) {
-            player.sendMessage(cm("<Gray>▪ <Red>You are already in a Claim team."));
+            player.sendMessage(cm(mm.get("claim.in-claim")));
             event.setCancelled(true);
             return;
         }
 
         // Check if the position is within x chunks of an enemy claim
         if (claimManager.isTooCloseToEnemyClaim(block.getLocation(),null)) {
-            player.sendMessage(cm("<Gray>▪ <Red>You cannot place a Claim chest too close to an enemy Claim."));
+            player.sendMessage(cm(mm.get("claim.close-to-enemy")));
             event.setCancelled(true);
             return;
         }
 
         // Make sure there is an air block above the chest
         if (!block.getRelative(0,1,0).getType().equals(Material.AIR)) {
-            player.sendMessage(cm("<Gray>▪ <Red>Clear the area above the Claim chest."));
+            player.sendMessage(cm(mm.get("claim.area-blocked")));
             event.setCancelled(true);
             return;
         }
@@ -84,7 +86,8 @@ public class ClaimChestListener implements Listener {
                 List.of(
                         cc(claim.getClaimName()).color(NamedTextColor.YELLOW).decoration(TextDecoration.BOLD,true),
                         cc(""),
-                        cm("<White>Shield Charge: <Yellow><time>",
+                        cm(
+                                "<White>Shield Charge: <Yellow><time>",
                                 Placeholder.component("time", cc(claim.getShieldTimeFormatted()))
                                 )
                 )

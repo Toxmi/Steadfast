@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.toxmi.steadfast.Steadfast;
+import com.toxmi.steadfast.core.managers.MessageManager;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import org.bukkit.metadata.MetadataValue;
 
 public abstract class BaseCommand {
     protected final Steadfast plugin = Steadfast.get();
+    protected MessageManager mm = MessageManager.get();
 
 
     public abstract LiteralCommandNode<CommandSourceStack> node();
