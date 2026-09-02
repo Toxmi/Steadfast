@@ -2,6 +2,7 @@ package com.toxmi.steadfast.modules.claims.listeners;
 
 import com.toxmi.steadfast.core.managers.MessageManager;
 import com.toxmi.steadfast.core.utils.Keys;
+import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.Claim;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.menus.ClaimMenu;
@@ -11,6 +12,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -32,12 +34,14 @@ import static com.toxmi.steadfast.core.utils.Str.cc;
 import static com.toxmi.steadfast.core.utils.Str.cm;
 
 public class ClaimChestListener implements Listener {
-
     private final ClaimManager claimManager;
+    private final Scheduler sch;
+
     private final List<String> allowedWorlds = new ArrayList<>();
     private final MessageManager mm;
     public ClaimChestListener() {
         this.claimManager = ClaimManager.get();
+        this.sch = Scheduler.get();
         this.mm = MessageManager.get();
         reload();
     }
@@ -86,6 +90,19 @@ public class ClaimChestListener implements Listener {
 
         // Create the Claim if all previous checks passed
         Claim claim = claimManager.createClaim(player, block.getLocation());
+        sch.region(player.getLocation(), () -> {
+            BlockState state = block.getState();
+
+            if (state instanceof TileState tile) {
+                tile.getPersistentDataContainer().set(
+                        Keys.claimKey,
+                        PersistentDataType.STRING,
+                        claim.toString()
+                );
+                tile.update();
+            }
+
+        }, 1);
         createClaimHolo(claim, block.getLocation());
     }
 

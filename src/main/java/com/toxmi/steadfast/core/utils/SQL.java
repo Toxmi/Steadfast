@@ -85,26 +85,26 @@ public enum SQL {
     ),
     GET_ALL_PLAYERS(
             """
-            SELECT * FROM players;
+            SELECT * FROM Players JOIN PlayerStats ON Players.playerID = PlayerStats.playerID;
             """,
             """
-            SELECT * FROM players;
+            SELECT * FROM Players JOIN PlayerStats ON Players.playerID = PlayerStats.playerID;
             """
     ),
     GET_PLAYER(
             """
-            SELECT * FROM players WHERE playerid = ?;
+            SELECT * FROM players JOIN PlayerStats ON Players.playerID = PlayerStats.playerID WHERE playerid = ?;
             """,
             """
-            SELECT * FROM players WHERE playerid = ?;
+            SELECT * FROM players JOIN PlayerStats ON Players.playerID = PlayerStats.playerID WHERE playerid = ?;
             """
     ),
     INSERT_PLAYER(
             """
-            INSERT INTO players (playerid, playername) VALUES (?, ?);
+            INSERT INTO players (playerid) VALUES (?);
             """,
             """
-            INSERT INTO players (playerid, playername) VALUES (?, ?);
+            INSERT INTO players (playerid) VALUES (?);
             """
     ),
     UPDATE_PLAYER_CLAIM(

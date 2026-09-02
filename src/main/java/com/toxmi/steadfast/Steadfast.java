@@ -2,10 +2,12 @@ package com.toxmi.steadfast;
 
 import com.toxmi.steadfast.core.commands.ClaimCommand;
 import com.toxmi.steadfast.core.commands.GiveCustomCommand;
+import com.toxmi.steadfast.core.listeners.JoinListener;
 import com.toxmi.steadfast.core.listeners.MenuListener;
 import com.toxmi.steadfast.core.managers.DatabaseManager;
 import com.toxmi.steadfast.core.managers.GlobalTask;
 import com.toxmi.steadfast.core.managers.MessageManager;
+import com.toxmi.steadfast.core.managers.PlayerManager;
 import com.toxmi.steadfast.core.utils.Scheduler;
 import com.toxmi.steadfast.modules.claims.ClaimManager;
 import com.toxmi.steadfast.modules.claims.listeners.ClaimChestListener;
@@ -30,6 +32,7 @@ public final class Steadfast extends JavaPlugin {
     private ClaimChestListener claimChestListener;
     private MessageManager messageManager;
     private GlobalTask globalTask;
+    private PlayerManager playerManager;
 
     private FileConfiguration config;
 
@@ -78,6 +81,7 @@ public final class Steadfast extends JavaPlugin {
         this.claimManager = new ClaimManager();
         this.claimManager.loadClaims();
         this.customManager = new CustomManager();
+        this.playerManager = new PlayerManager(this);
     }
 
     private void initListeners() {
@@ -86,6 +90,7 @@ public final class Steadfast extends JavaPlugin {
         registerListener(new MenuListener(this));
         this.claimChestListener = new ClaimChestListener();
         registerListener(claimChestListener);
+        registerListener(new JoinListener());
     }
 
     private void registerListener(Listener listener) {

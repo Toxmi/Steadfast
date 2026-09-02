@@ -29,6 +29,6 @@ public class Keys {
     }
 
     public static String getKey(ItemStack item, NamespacedKey key) {
-        return item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+        return item.getItemMeta().getPersistentDataContainer().getOrDefault(key, PersistentDataType.STRING, "");
     }
 }
